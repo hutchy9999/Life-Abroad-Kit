@@ -80,6 +80,9 @@ function App() {
   );
   const [homeCount, setHomeCount] = useState(0);
   const [homePaused, setHomePaused] = useState(false);
+  const [roundPhraseIds, setRoundPhraseIds] = useState<string[]>([]);
+  const [showAllRound, setShowAllRound] = useState(false);
+  const roundSituationRef = useRef<string | undefined>(undefined);
   useEffect(() => {
     const redirectOldRoute = () => {
       if (["#phrases", "#review"].includes(location.hash))
@@ -177,18 +180,19 @@ function App() {
       settingsReturnPath.current = route;
     location.hash = r;
   };
+  const progressScenario = scenarios.find((s) => route === `progress/${s.id}`);
   const scenario = scenarios.find((s) => route === `scenario/${s.id}`);
   const selected = scenarios.filter((s) => state.selected.includes(s.id));
   const currentSituation = activeSituation(state);
-  const reviewedPhrases = currentSituation?.phrases.filter((p) => {
-    const r = state.recall[p.id];
-    return r && r.again + r.got > 0;
-  }) || [];
+  const roundPhrases = roundPhraseIds.map((id) => currentSituation?.phrases.find((p) => p.id === id)).filter((p): p is Phrase => !!p);
   useEffect(() => {
-    if (route === "home") {
+    if (route === "home" && roundSituationRef.current !== currentSituation?.id) {
+      roundSituationRef.current = currentSituation?.id;
       setHomePhrase(pickQuickPhrase(state));
       setHomeCount(0);
       setHomePaused(false);
+      setRoundPhraseIds([]);
+      setShowAllRound(false);
       setRevealed(false);
     }
   }, [route, currentSituation?.id]);
@@ -291,6 +295,7 @@ function App() {
     const practice = situationPracticeProgress(state, s);
     const current = route === "home" && currentSituation?.id === s.id;
     return (
+      <div key={s.id} className={"situation-card-group" + (current ? " current-situation-group" : "")}>
       <button className={"scenario-card" + (current ? " current-situation-card" : "")} key={s.id} onClick={() => open(s)} aria-current={current ? "step" : undefined}>
         <div className="card-top">
           <span className={`icon-tile ${s.icon}`}>
@@ -307,7 +312,7 @@ function App() {
                 <Check size={14} /> Completed
               </>
             ) : practice.practised > 0 ? (
-              `In progress · ${practice.percent}%`
+              practice.percent === 100 ? "All phrases practised · 100%" : `In progress · ${practice.percent}%`
             ) : (
               route === "home" ? "Not started · 0%" : `${s.phrases.length} useful phrases`
             )}
@@ -329,6 +334,8 @@ function App() {
           </div>
         )}
       </button>
+      {current && practice.practised > 0 && <a className="all-practised-link" href={"#progress/" + s.id}>View all practised phrases <ArrowRight size={16} /></a>}
+      </div>
     );
   };
   function rateHomePhrase(known: boolean) {
@@ -338,10 +345,38 @@ function App() {
     setRevealed(false);
     const next = recordQuickPhrase(state, homePhrase, known);
     setState(next);
+    setRoundPhraseIds((ids) => ids.includes(homePhrase.phrase.id) ? ids : [...ids, homePhrase.phrase.id]);
     track("phrase_reviewed");
     setHomeCount((n) => Math.min(n + 1, REVIEW_SESSION_SIZE));
     setHomePhrase(pickQuickPhrase(next, homePhrase.phrase.id));
   }
+  const practisedList = (phrases: Phrase[], listId: string) => (
+                <ul id={listId}>
+                  {phrases.map((p) => {
+                    const r = state.recall[p.id];
+                    const playing = audio === p.es;
+                    return (
+                      <li key={p.id} className={r.got > 0 ? "reviewed-known" : ""}>
+                        <div className="reviewed-phrase-detail">
+                          <p lang="es">{p.es}</p>
+                          <div className="reviewed-phrase-stats">
+                            <span>Practised {r.again + r.got} {r.again + r.got === 1 ? "time" : "times"}</span>
+                            {r.got > 0 && <span className="sr-only">Marked as known at least once</span>}
+                          </div>
+                        </div>
+                        <button
+                          className="icon-button reviewed-listen"
+                          aria-label={playing ? "Stop audio: " + p.es : "Listen: " + p.es}
+                          title={playing ? "Stop audio" : "Listen"}
+                          onClick={() => listen(p)}
+                        >
+                          {playing ? <Square size={18} /> : <Volume2 size={18} />}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+  );
   return (
     <>
       <a
@@ -612,6 +647,15 @@ function App() {
               Back to my learning
             </button>
           </section>
+        ) : progressScenario ? (
+          <section className="all-practised-page reviewed-phrases" aria-labelledby="all-practised-title">
+            <button className="text-button back" onClick={() => nav("home")}><ArrowLeft size={16} /> Back to my learning</button>
+            <h1 id="all-practised-title">Practised phrases</h1>
+            <p className="reviewed-situation">{progressScenario.title}</p>
+            {progressScenario.phrases.some((p) => (state.recall[p.id]?.again || 0) + (state.recall[p.id]?.got || 0) > 0) ? (
+              practisedList(progressScenario.phrases.filter((p) => (state.recall[p.id]?.again || 0) + (state.recall[p.id]?.got || 0) > 0), "all-practised-list")
+            ) : <p>No phrases practised yet.</p>}
+          </section>
         ) : scenario ? (
           <section className="lesson phrase-library">
             <button className="text-button back" onClick={() => nav("library")}>
@@ -839,6 +883,8 @@ function App() {
                         onClick={() => {
                           setHomeCount(0);
                           setHomePaused(false);
+                          setRoundPhraseIds([]);
+                          setShowAllRound(false);
                           requestAnimationFrame(() =>
                             document
                               .querySelector<HTMLElement>(
@@ -864,35 +910,16 @@ function App() {
                 )}
               </section>
             )}
-            {currentSituation && reviewedPhrases.length > 0 && (
+            {currentSituation && roundPhrases.length > 0 && (
               <section className="reviewed-phrases" aria-labelledby="reviewed-phrases-title">
-                <h2 id="reviewed-phrases-title" tabIndex={-1}>Practised phrases</h2>
+                <h2 id="reviewed-phrases-title" tabIndex={-1}>Practised this round</h2>
                 <p className="reviewed-situation">{currentSituation.title}</p>
-                <ul>
-                  {reviewedPhrases.map((p) => {
-                    const r = state.recall[p.id];
-                    const playing = audio === p.es;
-                    return (
-                      <li key={p.id} className={r.got > 0 ? "reviewed-known" : ""}>
-                        <div className="reviewed-phrase-detail">
-                          <p lang="es">{p.es}</p>
-                          <div className="reviewed-phrase-stats">
-                            <span>Practised {r.again + r.got} {r.again + r.got === 1 ? "time" : "times"}</span>
-                            {r.got > 0 && <span className="sr-only">Marked as known at least once</span>}
-                          </div>
-                        </div>
-                        <button
-                          className="icon-button reviewed-listen"
-                          aria-label={playing ? "Stop audio: " + p.es : "Listen: " + p.es}
-                          title={playing ? "Stop audio" : "Listen"}
-                          onClick={() => listen(p)}
-                        >
-                          {playing ? <Square size={18} /> : <Volume2 size={18} />}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
+                {practisedList(showAllRound ? roundPhrases : roundPhrases.slice(0, 5), "round-practised-list")}
+                {roundPhrases.length > 5 && (
+                  <button className="text-button round-list-toggle" aria-expanded={showAllRound} aria-controls="round-practised-list" onClick={() => setShowAllRound((value) => !value)}>
+                    {showAllRound ? "Show less" : "Show all (" + roundPhrases.length + ")"}
+                  </button>
+                )}
               </section>
             )}
             <details className="my-situations" open={!homePhrase}>

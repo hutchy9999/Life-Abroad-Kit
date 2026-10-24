@@ -101,3 +101,5 @@ Legacy saved-phrase IDs remain in the version 1 storage format for compatibility
 My learning includes a compact Practised phrases list for the current situation, combining repeated appearances into one row. Rows show only lifetime practice counts and recorded-audio playback. An orange outline marks phrases that have received at least one I know this answer, including older saved progress. The underlying answer history remains available for scheduling practice. Finish for now focuses this list.
 
 Situation cards show distinct phrases practised as a percentage, rather than the next-phrase index. Both self-assessment answers count equally, and repeating a phrase does not inflate this percentage. My learning lists the current situation first and uses compact cards with a clear current label.
+
+The home phrase list is scoped to the current ten-practice round, with repeated phrases combined and five rows visible initially. Show all expands that round. Starting another round clears this list while keeping lifetime counts and known-phrase outlines. The current situation links to a separate full practised-phrase view.
