@@ -1,0 +1,31 @@
+/* Keep secondary copy readable and touch controls usable at every breakpoint. */
+.muted {
+  color: #657158 !important;
+}
+.save-note,
+.category,
+.time,
+.card-bottom,
+.phrase-position,
+.language-choice small,
+.bubble > small,
+.lesson-grid aside button,
+.lesson-tabs button,
+.gentle-note p {
+  color: #626e57;
+}
+.eyebrow {
+  color: #57674e;
+}
+.text-button,
+.icon-button,
+.audio {
+  min-height: 44px;
+}
+.icon-button {
+  min-width: 44px;
+}
+.hero-note small,
+.floating-note small {
+  color: #646e56;
+}
