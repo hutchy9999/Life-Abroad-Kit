@@ -1099,20 +1099,6 @@ function App() {
           </section>
         )}
       </main>
-      <footer inert={reset}>
-        <div>
-          <span>
-            Life Abroad Kit <small>by James Hutchinson Languages</small>
-          </span>
-        </div>
-        <div>
-          {savedNotice}
-          <button className="text-button" onClick={() => nav("settings")}>
-            How saving works
-          </button>
-        </div>
-        <span className="footer-free">Free to use. No account needed.</span>
-      </footer>
       {reset && (
         <div className="modal-backdrop">
           <div

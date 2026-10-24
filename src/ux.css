@@ -1252,3 +1252,14 @@ header .brand {
     font-size: 1.25rem;
   }
 }
+
+/* Saving details live in Settings. Keep the last action clear of mobile navigation. */
+main {
+  min-height: calc(100dvh - 76px);
+}
+@media (max-width: 700px) {
+  main {
+    min-height: calc(100dvh - 72px);
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+}
