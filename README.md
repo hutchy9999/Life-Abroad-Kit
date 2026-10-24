@@ -2,6 +2,12 @@
 
 A free, browser-local Spanish conversation preparation app by James Hutchinson Languages. React + TypeScript + Vite. No backend, accounts, AI API, email collection or cloud progress storage.
 
+## App flow
+
+- My Learning opens directly on a compact phrase from the current situation. Three quick phrases offer “Don’t know this” / “I know this” feedback, with difficult phrases weighted more heavily in later review.
+- All Situations is the library. Opening a situation shows every phrase in a scrollable list with independent translation reveals, a heart, Listen and a short usage note. There is no multi-step lesson navigation.
+- Saved phrases contains hearted phrases and one Listen control per item. Saved-phrase recall review is still available here.
+
 ## Run locally
 
 Use Node.js 22.12+ (or a compatible newer LTS).

@@ -1173,3 +1173,82 @@ header .brand {
   letter-spacing: 0;
   line-height: 1.5;
 }
+
+.phrase-library {
+  max-width: 840px;
+}
+.phrase-library .lesson-heading {
+  margin-bottom: 24px;
+}
+.browse-phrases {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+.browse-phrase-card {
+  padding: 16px 20px;
+  border: 1px solid #486071;
+  border-radius: 10px;
+  background: #102737;
+}
+.browse-phrase-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.browse-phrase-title h2 {
+  font-family: "DM Sans", sans-serif;
+  font-size: 1.375rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  font-weight: 400;
+  margin: 5px 0 10px;
+  min-width: 0;
+}
+.browse-phrase-title .icon-button {
+  flex-shrink: 0;
+}
+.browse-phrase-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+.browse-translation {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+.browse-pattern {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  margin: 12px 0 0;
+  color: #b8c6d2;
+}
+.browse-pattern strong {
+  font-weight: 600;
+  color: #d5e0e8;
+}
+.situation-finish {
+  margin-top: 24px;
+}
+.situation-finish > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b8c6d2;
+}
+@media (max-width: 620px) {
+  .browse-phrase-card {
+    padding: 14px 16px;
+  }
+  .browse-phrase-title {
+    gap: 8px;
+  }
+  .browse-phrase-title h2 {
+    font-size: 1.25rem;
+  }
+}

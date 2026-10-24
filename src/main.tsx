@@ -3,15 +3,10 @@ import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
   ArrowLeft,
-  BookOpen,
   Check,
-  ChevronRight,
   Compass,
-  Headphones,
   Home,
-  LayoutGrid,
   MessageCircle,
-  Play,
   RotateCcw,
   Settings,
   ShieldCheck,
@@ -68,8 +63,8 @@ function App() {
   const [step, setStep] = useState(0);
   const [selection, setSelection] = useState(state.selected);
   const [situation, setSituation] = useState(state.situation);
-  const [tab, setTab] = useState("learn");
   const [revealed, setRevealed] = useState(false);
+  const [visibleTranslations, setVisibleTranslations] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All situations");
   const [reset, setReset] = useState(false);
@@ -88,7 +83,7 @@ function App() {
       stopAudio();
       setAudio(null);
       setRoute(location.hash.slice(1) || "home");
-      setTab("learn");
+      setVisibleTranslations([]);
       setRevealed(false);
       window.scrollTo(0, 0);
     };
@@ -110,10 +105,6 @@ function App() {
     if (initial.state.onboarded) track("returning_visitor");
     return stopAudio;
   }, []);
-  useEffect(() => {
-    stopAudio();
-    setAudio(null);
-  }, [tab]);
   useEffect(() => {
     if (!reset) return;
     const focusBefore = resetTrigger.current;
@@ -182,13 +173,6 @@ function App() {
     s.phrases.map((p) => ({ ...p, scenario: s })),
   );
   const scenario = scenarios.find((s) => route === `scenario/${s.id}`);
-  const idx = scenario
-    ? Math.min(
-        state.progress[scenario.id]?.index || 0,
-        scenario.phrases.length - 1,
-      )
-    : 0;
-  const phrase = scenario?.phrases[idx];
   const selected = scenarios.filter((s) => state.selected.includes(s.id));
   const currentSituation = activeSituation(state);
   useEffect(() => {
@@ -208,10 +192,10 @@ function App() {
     }
   }, [homeCount]);
   useEffect(() => {
-    if ((tab === "practice" || route === "review") && !reviewDone) {
+    if (route === "review" && !reviewDone) {
       document.querySelector<HTMLElement>(".recall-prompt")?.focus();
     }
-  }, [idx, reviewIndex, tab, route, reviewDone]);
+  }, [reviewIndex, route, reviewDone]);
   const open = (s: Scenario) => {
     track("scenario_opened");
     update((v) => ({
@@ -267,6 +251,8 @@ function App() {
     nav("review");
   }
   function feedback(p: Phrase, again: boolean) {
+    stopAudio();
+    setAudio(null);
     track("phrase_reviewed");
     update((v) => {
       const r = v.recall[p.id] || { again: 0, got: 0 };
@@ -285,27 +271,7 @@ function App() {
     if (route === "review") {
       if (reviewIndex + 1 >= reviewIds.length) setReviewDone(true);
       else setReviewIndex((i) => i + 1);
-    } else if (scenario) {
-      if (idx + 1 < scenario.phrases.length) move(idx + 1);
-      else setTab("finish");
     }
-  }
-  function move(index: number) {
-    if (!scenario) return;
-    stopAudio();
-    setAudio(null);
-    setRevealed(false);
-    update((v) => ({
-      ...v,
-      progress: {
-        ...v.progress,
-        [scenario.id]: {
-          ...v.progress[scenario.id],
-          index,
-          completed: v.progress[scenario.id]?.completed || false,
-        },
-      },
-    }));
   }
   const savedNotice = (
     <span className="save-note">
@@ -406,45 +372,6 @@ function App() {
       </button>
     );
   };
-  const phraseCard = (p: Phrase) => (
-    <div className="phrase-card">
-      <div className="phrase-top">
-        <span className="eyebrow">USEFUL PHRASE</span>
-        <button
-          className={`icon-button save-phrase ${state.bookmarks.includes(p.id) ? "marked" : ""}`}
-          aria-label={
-            state.bookmarks.includes(p.id)
-              ? "Saved. Remove saved phrase"
-              : "Save phrase"
-          }
-          aria-pressed={state.bookmarks.includes(p.id)}
-          onClick={() => bookmark(p.id)}
-        >
-          <Heart size={22} />
-          <span>
-            {state.bookmarks.includes(p.id) ? "Saved" : "Save phrase"}
-          </span>
-        </button>
-      </div>
-      <h2 lang="es" tabIndex={-1}>
-        {p.es}
-      </h2>
-      {revealed ? (
-        <p className="translation" role="status">
-          {p.en}
-        </p>
-      ) : (
-        <button className="reveal" onClick={() => setRevealed(true)}>
-          Show English translation
-        </button>
-      )}
-      {audioButtons(p)}
-      <div className="pattern">
-        <span className="eyebrow">HOW TO USE IT</span>
-        <p>{p.pattern}</p>
-      </div>
-    </div>
-  );
   function rateHomePhrase(known: boolean) {
     if (!homePhrase) return;
     stopAudio();
@@ -476,14 +403,14 @@ function App() {
             word.
           </p>
           <p className="muted">
-            Choose Review later to see this phrase first in your next review.
+            Phrases you don’t know will appear more often in review.
           </p>
           <div className="button-row">
             <button className="secondary" onClick={() => feedback(p, true)}>
-              <RotateCcw size={17} /> Review later
+              <RotateCcw size={17} /> Don’t know this
             </button>
             <button className="primary" onClick={() => feedback(p, false)}>
-              <Check size={18} /> I remembered it
+              <Check size={18} /> I know this
             </button>
           </div>
         </>
@@ -780,186 +707,107 @@ function App() {
               Back to my learning
             </button>
           </section>
-        ) : scenario && phrase ? (
-          <section className="lesson">
-            <button className="text-button back" onClick={() => nav("home")}>
-              <ArrowLeft size={16} /> Back to my learning
+        ) : scenario ? (
+          <section className="lesson phrase-library">
+            <button className="text-button back" onClick={() => nav("library")}>
+              <ArrowLeft size={16} /> All situations
             </button>
             <div className="lesson-heading">
-              <span className="eyebrow">
-                {scenario.category} · 5 to 10 MINUTES
-              </span>
+              <span className="eyebrow">{scenario.category}</span>
               <h1>{scenario.title}</h1>
               <p>{scenario.description}</p>
             </div>
-            <nav className="lesson-steps" aria-label="Lesson steps">
-              <ol>
-                {[
-                  ["learn", "Learn phrases"],
-                  ["dialogue", "Read conversation"],
-                  ["practice", "Practise"],
-                ].map(([value, label], index) => (
-                  <li key={value}>
-                    <button
-                      aria-current={tab === value ? "step" : undefined}
-                      onClick={() => {
-                        if (value === "practice" && tab !== "practice") move(0);
-                        setTab(value);
-                        setRevealed(false);
-                      }}
-                    >
-                      <span className="step-number">{index + 1}</span>
-                      <span>{label}</span>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-            {tab !== "finish" && (
-              <p className="lesson-step-help">
-                {tab === "learn"
-                  ? "Read or listen to each phrase, then choose Next phrase."
-                  : tab === "dialogue"
-                    ? "Read both sides of the conversation, then move on to practice."
-                    : "Try saying each answer aloud before you show it."}
-              </p>
-            )}
-            {tab === "learn" ? (
-              <div className="lesson-content">
-                <div>
-                  <div className="phrase-position">
-                    <span>{scenario.stages[phrase.stage]}</span>
-                    <span>
-                      Phrase {idx + 1} of {scenario.phrases.length}
-                    </span>
-                  </div>
-                  {phraseCard(phrase)}
-                  <div className="lesson-controls">
-                    <button
-                      className="secondary"
-                      disabled={idx === 0}
-                      onClick={() => move(idx - 1)}
-                    >
-                      <ArrowLeft size={16} /> Previous
-                    </button>
-                    {idx < scenario.phrases.length - 1 ? (
-                      <button className="primary" onClick={() => move(idx + 1)}>
-                        Next phrase <ArrowRight size={16} />
-                      </button>
-                    ) : (
-                      <button
-                        className="primary"
-                        onClick={() => setTab("dialogue")}
-                      >
-                        Read the conversation <ArrowRight size={16} />
-                      </button>
-                    )}
-                  </div>
-                  <details className="phrase-groups">
-                    <summary>Jump to a phrase group</summary>
-                    <div>
-                      {scenario.stages.map((stage, i) => (
-                        <button
-                          className="text-button"
-                          key={stage}
-                          aria-current={phrase.stage === i ? "step" : undefined}
-                          onClick={() =>
-                            move(
-                              Math.floor(
-                                (i * scenario.phrases.length) /
-                                  scenario.stages.length,
-                              ),
-                            )
-                          }
-                        >
-                          {stage}
-                        </button>
-                      ))}
-                    </div>
-                  </details>
-                </div>
-              </div>
-            ) : tab === "dialogue" ? (
-              <div className="dialogue">
-                <div className="section-intro">
-                  <h2>What might they say back?</h2>
-                  <p>
-                    Get familiar with what you might hear back. These are
-                    examples, so real conversations may vary.
-                  </p>
-                </div>
-                {scenario.dialogue.map((line, i) => (
-                  <div
-                    className={`bubble ${line.speaker === "You" ? "you" : ""}`}
-                    key={i}
+            <ul className="browse-phrases" aria-label="Spanish phrases">
+              {scenario.phrases.map((p) => (
+                <li key={p.id}>
+                  <article
+                    className="browse-phrase-card"
+                    aria-labelledby={"phrase-" + p.id}
                   >
-                    <span className="eyebrow">{line.speaker}</span>
-                    <p lang="es">{line.es}</p>
-                    <small>{line.en}</small>
-                    {audioButtons(line.es)}
-                  </div>
-                ))}
+                    <div className="browse-phrase-title">
+                      <h2 id={"phrase-" + p.id} lang="es">
+                        {p.es}
+                      </h2>
+                      <button
+                        className={
+                          "icon-button " +
+                          (state.bookmarks.includes(p.id) ? "marked" : "")
+                        }
+                        aria-label={
+                          state.bookmarks.includes(p.id)
+                            ? "Saved. Remove saved phrase"
+                            : "Save phrase"
+                        }
+                        aria-pressed={state.bookmarks.includes(p.id)}
+                        onClick={() => bookmark(p.id)}
+                      >
+                        <Heart size={21} />
+                      </button>
+                    </div>
+                    {visibleTranslations.includes(p.id) && (
+                      <p
+                        className="browse-translation"
+                        id={"meaning-" + p.id}
+                        role="status"
+                      >
+                        {p.en}
+                      </p>
+                    )}
+                    <div className="browse-phrase-actions">
+                      {audioButtons(p)}
+                      <button
+                        className="text-button"
+                        aria-expanded={visibleTranslations.includes(p.id)}
+                        aria-controls={"meaning-" + p.id}
+                        onClick={() =>
+                          setVisibleTranslations((ids) =>
+                            ids.includes(p.id)
+                              ? ids.filter((id) => id !== p.id)
+                              : [...ids, p.id],
+                          )
+                        }
+                      >
+                        {visibleTranslations.includes(p.id)
+                          ? "Hide translation"
+                          : "Show translation"}
+                      </button>
+                    </div>
+                    <p className="browse-pattern">
+                      <strong>How to use it: </strong>
+                      {p.pattern}
+                    </p>
+                  </article>
+                </li>
+              ))}
+            </ul>
+            <div className="situation-finish">
+              {state.progress[scenario.id]?.completed ? (
+                <span>
+                  <Check size={18} /> Situation completed
+                </span>
+              ) : (
                 <button
-                  className="primary"
+                  className="secondary"
                   onClick={() => {
-                    move(0);
-                    setTab("practice");
+                    track("scenario_completed");
+                    update((v) => ({
+                      ...v,
+                      last: scenario.id,
+                      progress: {
+                        ...v.progress,
+                        [scenario.id]: {
+                          index: scenario.phrases.length - 1,
+                          completed: true,
+                        },
+                      },
+                    }));
                   }}
                 >
-                  Practise these phrases <ArrowRight size={17} />
+                  Mark situation complete <Check size={17} />
                 </button>
-              </div>
-            ) : tab === "practice" ? (
-              <div className="practice">
-                <div className="phrase-position">
-                  <span>Recall practice</span>
-                  <span>
-                    {idx + 1} / {scenario.phrases.length}
-                  </span>
-                </div>
-                {recallCard(phrase)}
-              </div>
-            ) : (
-              <div className="completion">
-                <span className="completion-icon">
-                  <Check size={35} />
-                </span>
-                <span className="eyebrow">PRACTICE FINISHED</span>
-                <h2>You’ve finished this practice.</h2>
-                <p>
-                  You’ve worked through {scenario.title.toLowerCase()}. Come
-                  back whenever you need a refresher.
-                </p>
-                {!state.progress[scenario.id]?.completed ? (
-                  <button
-                    className="primary"
-                    onClick={() => {
-                      track("scenario_completed");
-                      update((v) => ({
-                        ...v,
-                        progress: {
-                          ...v.progress,
-                          [scenario.id]: {
-                            index: scenario.phrases.length - 1,
-                            completed: true,
-                          },
-                        },
-                      }));
-                    }}
-                  >
-                    Finish lesson <Check size={17} />
-                  </button>
-                ) : (
-                  <span className="pill">
-                    <Check size={16} /> Lesson completed
-                  </span>
-                )}
-                {voco("completion")}
-                <button className="text-button" onClick={() => nav("home")}>
-                  Back to my learning <ArrowRight size={16} />
-                </button>
-              </div>
-            )}
+              )}
+            </div>
+            {state.progress[scenario.id]?.completed && voco("completion")}
           </section>
         ) : route === "phrases" ? (
           <section>
@@ -1028,9 +876,7 @@ function App() {
               <div className="completion">
                 <Check size={35} />
                 <h1>Review complete</h1>
-                <p>
-                  Phrases marked “Review later” come first in your next review.
-                </p>
+                <p>Phrases you didn’t know come first in your next review.</p>
                 <button className="primary" onClick={() => review(reviewIds)}>
                   Review again <RotateCcw size={17} />
                 </button>
@@ -1185,7 +1031,7 @@ function App() {
                         className="secondary"
                         onClick={() => rateHomePhrase(false)}
                       >
-                        Review again
+                        Don’t know this
                       </button>
                       <button
                         className="primary"
@@ -1194,31 +1040,23 @@ function App() {
                         I know this <ArrowRight size={17} />
                       </button>
                     </div>
-                    <button
-                      className="text-button open-current"
-                      onClick={() => open(homePhrase.scenario)}
-                    >
-                      Open full lesson <ArrowRight size={16} />
-                    </button>
                   </>
                 ) : (
                   <div className="quick-finished">
                     <Check size={28} />
                     <h2 tabIndex={-1}>Three phrases practised.</h2>
-                    <p>
-                      Pick up the rest of this situation whenever you’re ready.
-                    </p>
                     <div className="button-row">
                       <button
                         className="primary"
-                        onClick={() => open(homePhrase.scenario)}
-                      >
-                        Continue lesson <ArrowRight size={17} />
-                      </button>
-                      <button
-                        className="secondary"
                         onClick={() => {
                           setHomeCount(0);
+                          requestAnimationFrame(() =>
+                            document
+                              .querySelector<HTMLElement>(
+                                ".quick-phrase-line h2",
+                              )
+                              ?.focus(),
+                          );
                           setHomePhrase(
                             pickQuickPhrase(state, homePhrase.phrase.id),
                           );
