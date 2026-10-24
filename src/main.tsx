@@ -403,6 +403,7 @@ function App() {
             <div className="onboarding-intro">
               <h1>Prepare yourself for <span>life abroad.</span></h1>
               <p>Find useful phrases for everyday situations, practise them in advance, and look them up when you need them.</p>
+              <p className="welcome-examples-label">A few examples of what you can practise:</p>
               <ul className="welcome-examples" aria-label="Example situations">
                 <li>Explaining a health problem to a doctor</li>
                 <li>Asking for directions around town</li>

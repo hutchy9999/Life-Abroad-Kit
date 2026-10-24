@@ -1390,3 +1390,9 @@ main {
 }
 .welcome-examples li + li { margin-top: 6px; }
 .welcome-examples li::marker { color: #ff9b6b; }
+
+.onboarding-intro > .welcome-examples-label {
+  margin-top: 18px;
+  font-size: 0.9375rem;
+}
+.welcome-examples-label + .welcome-examples { margin-top: 8px; }
