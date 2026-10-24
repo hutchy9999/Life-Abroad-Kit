@@ -1421,3 +1421,32 @@ main {
   line-height: 1.45;
 }
 .welcome-example-panel .welcome-examples li + li { margin-top: 4px; }
+
+.reviewed-phrases {
+  max-width: 760px;
+  margin: 24px auto;
+  scroll-margin-top: 24px;
+}
+.reviewed-phrases > h2 { font-size: 1.25rem; }
+.reviewed-situation { font-size: 0.9375rem; margin-top: 2px; color: #f8f9fb; }
+.reviewed-explainer { font-size: 0.875rem; margin: 2px 0 12px; }
+.reviewed-phrases ul { list-style: none; padding: 0; margin: 0; }
+.reviewed-phrases li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px 10px 12px;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid #2c4252;
+}
+.reviewed-phrase-detail { min-width: 0; flex: 1; }
+.reviewed-phrase-detail > p { color: #f8f9fb; font-size: 1rem; font-weight: 400; line-height: 1.4; }
+.reviewed-phrase-stats { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; font-size: 0.875rem; line-height: 1.4; color: var(--muted); }
+.reviewed-answer { display: inline-flex; align-items: center; gap: 4px; }
+.reviewed-phrases li.reviewed-known { background: #251f1d; border-left-color: #ff9b6b; }
+.reviewed-known .reviewed-answer { color: #ffb58d; }
+.reviewed-listen { width: 48px; min-width: 48px; height: 48px; border: 1px solid #486071; border-radius: 50%; }
+#reviewed-phrases-title { scroll-margin-top: 24px; }
+@media (forced-colors: active) {
+  .reviewed-phrases li.reviewed-known { border-left-color: Highlight; }
+}

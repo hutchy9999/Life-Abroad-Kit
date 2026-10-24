@@ -52,3 +52,15 @@ describe("Spanish launch content", () => {
     }
   });
 });
+
+describe("latest self-assessment compatibility", () => {
+  it("keeps old counts and restores the optional latest answer", () => {
+    const s = fresh();
+    s.recall["flat-p1"] = { again: 2, got: 3 };
+    s.recall["flat-p2"] = { again: 1, got: 2, lastKnown: false };
+    expect(decode(JSON.stringify(s))).toEqual(s);
+  });
+  it("rejects a damaged latest answer", () => {
+    expect(() => decode(JSON.stringify({ ...fresh(), recall: { "flat-p1": { again: 1, got: 2, lastKnown: "yes" } } }))).toThrow();
+  });
+});

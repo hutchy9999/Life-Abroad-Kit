@@ -97,3 +97,5 @@ No analytics provider is configured and no analytics requests are sent. `track` 
 No live deployment or DNS change is performed by local development commands.
 
 Legacy saved-phrase IDs remain in the version 1 storage format for compatibility with existing browser data. Saving controls and the Saved phrases page have been removed. Old saved-phrase and review links return to My learning.
+
+My learning includes a compact Practised phrases list for the current situation, combining repeated appearances into one row. Rows show lifetime practice counts, the latest self-assessment when recorded, and recorded-audio playback. Older progress retains its original answer totals without an inferred latest answer. Finish for now focuses this list.

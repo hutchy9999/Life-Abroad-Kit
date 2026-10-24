@@ -90,3 +90,16 @@ describe("immediate home practice", () => {
   it("handles no selected situations safely", () =>
     expect(pickQuickPhrase(fresh())).toBeNull());
 });
+
+describe("reviewed phrase statistics", () => {
+  it("counts every review and saves the latest answer without changing earlier totals", () => {
+    let s = { ...fresh(), selected: ["flat"] };
+    const card = pickQuickPhrase(s)!;
+    s = recordQuickPhrase(s, card, true);
+    expect(s.recall[card.phrase.id]).toEqual({ again: 0, got: 1, lastKnown: true });
+    s = recordQuickPhrase(s, card, false);
+    expect(s.recall[card.phrase.id]).toEqual({ again: 1, got: 1, lastKnown: false });
+    s = recordQuickPhrase(s, card, true);
+    expect(s.recall[card.phrase.id]).toEqual({ again: 1, got: 2, lastKnown: true });
+  });
+});

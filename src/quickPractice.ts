@@ -74,6 +74,7 @@ export function recordQuickPhrase(
       [card.phrase.id]: {
         again: recall.again + (known ? 0 : 1),
         got: recall.got + (known ? 1 : 0),
+        lastKnown: known,
       },
     },
   };

@@ -4,6 +4,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Check,
+  RotateCcw,
   Compass,
   Home,
   Settings,
@@ -179,6 +180,10 @@ function App() {
   const scenario = scenarios.find((s) => route === `scenario/${s.id}`);
   const selected = scenarios.filter((s) => state.selected.includes(s.id));
   const currentSituation = activeSituation(state);
+  const reviewedPhrases = currentSituation?.phrases.filter((p) => {
+    const r = state.recall[p.id];
+    return r && r.again + r.got > 0;
+  }) || [];
   useEffect(() => {
     if (route === "home") {
       setHomePhrase(pickQuickPhrase(state));
@@ -191,7 +196,7 @@ function App() {
     if (route === "home" && homeCount > 0) {
       document
         .querySelector<HTMLElement>(
-          ".home-quick .quick-phrase-line h2, .quick-finished h2",
+          homePaused ? "#reviewed-phrases-title" : ".home-quick .quick-phrase-line h2, .quick-finished h2",
         )
         ?.focus();
     }
@@ -774,7 +779,7 @@ function App() {
                 </div>
                 <div className="review-session-progress">
                   <p id="session-progress-label" className="quick-count" aria-live="polite" aria-atomic="true">
-                    {homeCount} of {REVIEW_SESSION_SIZE} reviewed
+                    {homeCount} of {REVIEW_SESSION_SIZE} practised
                   </p>
                   <progress
                     aria-labelledby="session-progress-label"
@@ -825,8 +830,8 @@ function App() {
                 ) : (
                   <div className="quick-finished">
                     <Check size={28} />
-                    <h2 tabIndex={-1}>{homePaused ? "All done for now" : "10 phrases reviewed"}</h2>
-                    {homePaused && <p>Your progress is saved. Come back whenever you’re ready.</p>}
+                    <h2 tabIndex={-1}>{homePaused ? "All done for now" : "10 phrases practised"}</h2>
+                    {homePaused && <p>Your practised phrases are below.</p>}
                     <div className="button-row">
                       <button
                         className="primary"
@@ -856,6 +861,45 @@ function App() {
                     </div>
                   </div>
                 )}
+              </section>
+            )}
+            {currentSituation && reviewedPhrases.length > 0 && (
+              <section className="reviewed-phrases" aria-labelledby="reviewed-phrases-title">
+                <h2 id="reviewed-phrases-title" tabIndex={-1}>Practised phrases</h2>
+                <p className="reviewed-situation">{currentSituation.title}</p>
+                <p className="reviewed-explainer">Times practised and your latest answer.</p>
+                <ul>
+                  {reviewedPhrases.map((p) => {
+                    const r = state.recall[p.id];
+                    const playing = audio === p.es;
+                    return (
+                      <li key={p.id} className={r.lastKnown === true ? "reviewed-known" : ""}>
+                        <div className="reviewed-phrase-detail">
+                          <p lang="es">{p.es}</p>
+                          <div className="reviewed-phrase-stats">
+                            <span>Practised {r.again + r.got} {r.again + r.got === 1 ? "time" : "times"}</span>
+                            {r.lastKnown !== undefined ? (
+                              <span className="reviewed-answer">
+                                {r.lastKnown ? <Check size={14} aria-hidden="true" /> : <RotateCcw size={14} aria-hidden="true" />}
+                                {r.lastKnown ? "I know this" : "Don’t know this"}
+                              </span>
+                            ) : (
+                              <span>{r.got} know · {r.again} don’t know</span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          className="icon-button reviewed-listen"
+                          aria-label={playing ? "Stop audio: " + p.es : "Listen: " + p.es}
+                          title={playing ? "Stop audio" : "Listen"}
+                          onClick={() => listen(p)}
+                        >
+                          {playing ? <Square size={18} /> : <Volume2 size={18} />}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               </section>
             )}
             <details className="my-situations" open={!homePhrase}>

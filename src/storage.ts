@@ -8,7 +8,7 @@ export type State = {
   selected: string[];
   bookmarks: string[];
   progress: Record<string, Progress>;
-  recall: Record<string, { again: number; got: number }>;
+  recall: Record<string, { again: number; got: number; lastKnown?: boolean }>;
   last: string | null;
 };
 export const fresh = (): State => ({
@@ -56,7 +56,8 @@ export function decode(raw: string | null): State {
       !Number.isInteger(r.again) ||
       !Number.isInteger(r.got) ||
       (r.again as number) < 0 ||
-      (r.got as number) < 0
+      (r.got as number) < 0 ||
+      (r.lastKnown !== undefined && typeof r.lastKnown !== "boolean")
     )
       throw Error("Invalid review");
   return v as unknown as State;
