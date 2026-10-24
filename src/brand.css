@@ -145,7 +145,7 @@ nav a.active {
   color: #ff9b6b;
 }
 .marked svg {
-  fill: #ff702e25;
+  fill: currentColor;
 }
 .tool-card {
   color: #ff9b6b;

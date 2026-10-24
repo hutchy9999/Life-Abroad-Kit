@@ -4,7 +4,6 @@ import {
   ArrowRight,
   ArrowLeft,
   BookOpen,
-  Bookmark,
   Check,
   ChevronRight,
   Compass,
@@ -215,7 +214,12 @@ function App() {
       return;
     }
     setAudio(text);
-    const error = playAudio(text, slow, () => setAudio(null));
+    const error = playAudio(
+      text,
+      slow,
+      () => setAudio(null),
+      (message) => setAudioError(message),
+    );
     setAudioError(error);
     if (error) setAudio(null);
   }
@@ -309,7 +313,7 @@ function App() {
       </a>
     </div>
   );
-  const audioButtons = (p: Phrase | string) => (
+  const audioButtons = (p: Phrase | string, showSlow = true) => (
     <div className="audio-buttons">
       <button
         className="audio"
@@ -327,9 +331,11 @@ function App() {
         )}{" "}
         {audio === (typeof p === "string" ? p : p.es) ? "Stop audio" : "Listen"}
       </button>
-      <button className="text-button" onClick={() => listen(p, true)}>
-        Play slowly
-      </button>
+      {showSlow && (
+        <button className="text-button" onClick={() => listen(p, true)}>
+          Play slowly
+        </button>
+      )}
     </div>
   );
   const card = (s: Scenario) => {
@@ -391,7 +397,7 @@ function App() {
           aria-pressed={state.bookmarks.includes(p.id)}
           onClick={() => bookmark(p.id)}
         >
-          <Bookmark size={22} />
+          <Heart size={22} />
           <span>
             {state.bookmarks.includes(p.id) ? "Saved" : "Save phrase"}
           </span>
@@ -477,7 +483,7 @@ function App() {
             {[
               ["home", "My learning", Home],
               ["library", "All situations", Compass],
-              ["phrases", "Saved phrases", Bookmark],
+              ["phrases", "Saved phrases", Heart],
             ].map(([r, label, Icon]) => (
               <a
                 key={r as string}
@@ -752,54 +758,45 @@ function App() {
               <h1>{scenario.title}</h1>
               <p>{scenario.description}</p>
             </div>
-            <div
-              className="lesson-tabs"
-              role="group"
-              aria-label="Lesson sections"
-            >
-              {[
-                ["learn", "Phrases", BookOpen],
-                ["dialogue", "Conversation", Headphones],
-                ["practice", "Practice", MessageCircle],
-              ].map(([t, l, I]) => (
-                <button
-                  className={tab === t ? "active" : ""}
-                  aria-pressed={tab === t}
-                  key={t as string}
-                  onClick={() => {
-                    setTab(t as string);
-                    setRevealed(false);
-                  }}
-                >
-                  {React.createElement(I as typeof Home, { size: 17 })}
-                  {l as string}
-                </button>
-              ))}
-            </div>
-            {tab === "learn" ? (
-              <div className="lesson-grid">
-                <aside>
-                  <span className="eyebrow">YOUR CONVERSATION</span>
-                  {scenario.stages.map((s, i) => (
+            <nav className="lesson-steps" aria-label="Lesson steps">
+              <ol>
+                {[
+                  ["learn", "Learn phrases"],
+                  ["dialogue", "Read conversation"],
+                  ["practice", "Practise"],
+                ].map(([value, label], index) => (
+                  <li key={value}>
                     <button
-                      className={phrase.stage === i ? "active" : ""}
-                      aria-current={phrase.stage === i ? "step" : undefined}
-                      key={s}
-                      onClick={() => move(i * 2)}
+                      aria-current={tab === value ? "step" : undefined}
+                      onClick={() => {
+                        if (value === "practice" && tab !== "practice") move(0);
+                        setTab(value);
+                        setRevealed(false);
+                      }}
                     >
-                      <span>{i + 1}</span>
-                      {s}
+                      <span className="step-number">{index + 1}</span>
+                      <span>{label}</span>
                     </button>
-                  ))}
-                  <p className="muted">
-                    Choose a stage, or work through the phrases in order.
-                  </p>
-                </aside>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+            {tab !== "finish" && (
+              <p className="lesson-step-help">
+                {tab === "learn"
+                  ? "Read or listen to each phrase, then choose Next phrase."
+                  : tab === "dialogue"
+                    ? "Read both sides of the conversation, then move on to practice."
+                    : "Try saying each answer aloud before you show it."}
+              </p>
+            )}
+            {tab === "learn" ? (
+              <div className="lesson-content">
                 <div>
                   <div className="phrase-position">
                     <span>{scenario.stages[phrase.stage]}</span>
                     <span>
-                      {idx + 1} / {scenario.phrases.length}
+                      Phrase {idx + 1} of {scenario.phrases.length}
                     </span>
                   </div>
                   {phraseCard(phrase)}
@@ -824,6 +821,28 @@ function App() {
                       </button>
                     )}
                   </div>
+                  <details className="phrase-groups">
+                    <summary>Jump to a phrase group</summary>
+                    <div>
+                      {scenario.stages.map((stage, i) => (
+                        <button
+                          className="text-button"
+                          key={stage}
+                          aria-current={phrase.stage === i ? "step" : undefined}
+                          onClick={() =>
+                            move(
+                              Math.floor(
+                                (i * scenario.phrases.length) /
+                                  scenario.stages.length,
+                              ),
+                            )
+                          }
+                        >
+                          {stage}
+                        </button>
+                      ))}
+                    </div>
+                  </details>
                 </div>
               </div>
             ) : tab === "dialogue" ? (
@@ -941,14 +960,14 @@ function App() {
                           <button
                             className="icon-button marked"
                             onClick={() => bookmark(p.id)}
-                            aria-label="Remove bookmark"
+                            aria-label="Remove saved phrase"
                           >
-                            <Bookmark size={19} />
+                            <Heart size={19} />
                           </button>
                         </div>
                         <h3 lang="es">{p.es}</h3>
                         <p>{p.en}</p>
-                        {audioButtons(p)}
+                        {audioButtons(p, false)}
                       </div>
                     ))}
                 </div>
@@ -956,7 +975,7 @@ function App() {
               </>
             ) : (
               <div className="empty">
-                <Bookmark size={35} />
+                <Heart size={35} />
                 <h2>No saved phrases yet.</h2>
                 <p>Choose Save phrase in a lesson to add it here.</p>
                 <button className="primary" onClick={() => nav("library")}>
@@ -995,7 +1014,7 @@ function App() {
             ) : (
               <div className="empty">
                 <h1>Nothing to review yet</h1>
-                <p>Bookmark a phrase or practise a scenario to get started.</p>
+                <p>Save a phrase or practise a situation to get started.</p>
                 <button className="primary" onClick={() => nav("library")}>
                   Explore situations
                 </button>
@@ -1107,7 +1126,7 @@ function App() {
             </button>
             <div className="tool-grid">
               <button className="tool-card" onClick={() => nav("phrases")}>
-                <Bookmark size={23} />
+                <Heart size={23} />
                 <div>
                   <h3>Saved phrases</h3>
                   <p>
