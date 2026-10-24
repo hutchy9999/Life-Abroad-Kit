@@ -1436,17 +1436,17 @@ main {
   align-items: center;
   gap: 8px;
   padding: 10px 8px 10px 12px;
-  border-left: 3px solid transparent;
-  border-bottom: 1px solid #2c4252;
+  border: 1px solid transparent;
+  border-bottom-color: #2c4252;
+  border-radius: 8px;
+  margin-top: 6px;
 }
 .reviewed-phrase-detail { min-width: 0; flex: 1; }
 .reviewed-phrase-detail > p { color: #f8f9fb; font-size: 1rem; font-weight: 400; line-height: 1.4; }
 .reviewed-phrase-stats { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; font-size: 0.875rem; line-height: 1.4; color: var(--muted); }
-.reviewed-answer { display: inline-flex; align-items: center; gap: 4px; }
-.reviewed-phrases li.reviewed-known { background: #251f1d; border-left-color: #ff9b6b; }
-.reviewed-known .reviewed-answer { color: #ffb58d; }
+.reviewed-phrases li.reviewed-known { border-color: #ff9b6b; }
 .reviewed-listen { width: 48px; min-width: 48px; height: 48px; border: 1px solid #486071; border-radius: 50%; }
 #reviewed-phrases-title { scroll-margin-top: 24px; }
 @media (forced-colors: active) {
-  .reviewed-phrases li.reviewed-known { border-left-color: Highlight; }
+  .reviewed-phrases li.reviewed-known { border-color: Highlight; }
 }

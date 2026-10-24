@@ -4,7 +4,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Check,
-  RotateCcw,
   Compass,
   Home,
   Settings,
@@ -867,25 +866,17 @@ function App() {
               <section className="reviewed-phrases" aria-labelledby="reviewed-phrases-title">
                 <h2 id="reviewed-phrases-title" tabIndex={-1}>Practised phrases</h2>
                 <p className="reviewed-situation">{currentSituation.title}</p>
-                <p className="reviewed-explainer">Times practised and your latest answer.</p>
                 <ul>
                   {reviewedPhrases.map((p) => {
                     const r = state.recall[p.id];
                     const playing = audio === p.es;
                     return (
-                      <li key={p.id} className={r.lastKnown === true ? "reviewed-known" : ""}>
+                      <li key={p.id} className={r.got > 0 ? "reviewed-known" : ""}>
                         <div className="reviewed-phrase-detail">
                           <p lang="es">{p.es}</p>
                           <div className="reviewed-phrase-stats">
                             <span>Practised {r.again + r.got} {r.again + r.got === 1 ? "time" : "times"}</span>
-                            {r.lastKnown !== undefined ? (
-                              <span className="reviewed-answer">
-                                {r.lastKnown ? <Check size={14} aria-hidden="true" /> : <RotateCcw size={14} aria-hidden="true" />}
-                                {r.lastKnown ? "I know this" : "Don’t know this"}
-                              </span>
-                            ) : (
-                              <span>{r.got} know · {r.again} don’t know</span>
-                            )}
+                            {r.got > 0 && <span className="sr-only">Marked as known at least once</span>}
                           </div>
                         </div>
                         <button
