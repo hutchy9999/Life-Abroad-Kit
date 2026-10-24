@@ -1450,3 +1450,19 @@ main {
 @media (forced-colors: active) {
   .reviewed-phrases li.reviewed-known { border-color: Highlight; }
 }
+
+/* Situation cards give a compact overview of practice across the course. */
+.scenario-card { padding: 16px; }
+.scenario-card .card-top { margin-bottom: 8px; gap: 10px; }
+.scenario-card .icon-tile { width: 32px; height: 32px; border-radius: 8px; }
+.scenario-card .category { font-size: 0.8125rem; letter-spacing: 0; text-transform: none; font-weight: 400; }
+.scenario-card h3 { margin: 4px 0 6px; font-size: 1.1875rem; }
+.scenario-card p { font-size: 0.9375rem; line-height: 1.45; }
+.scenario-card .card-bottom { margin-top: 12px; gap: 6px 12px; font-size: 0.875rem; }
+.my-situations .card-grid { grid-template-columns: 1fr; gap: 10px; }
+.my-situations .scenario-card { padding: 12px 16px 16px; }
+.my-situations .scenario-card h3 { margin: 4px 0 0; }
+.my-situations .scenario-card .card-bottom { margin-top: 8px; }
+.scenario-card.current-situation-card { border: 2px solid #ff9b6b; background: #112a3a; }
+.current-situation-label { font-size: 0.875rem; font-weight: 600; color: #ffb58d; }
+.current-situation-card .card-bottom > span:first-child { color: #ffb58d; font-weight: 600; }

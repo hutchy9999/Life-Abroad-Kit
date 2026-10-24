@@ -30,6 +30,7 @@ import { playAudio, stopAudio } from "./audio";
 import { track, vocoUrl } from "./analytics";
 import {
   REVIEW_SESSION_SIZE,
+  situationPracticeProgress,
   activeSituation,
   pickQuickPhrase,
   recordQuickPhrase,
@@ -287,27 +288,28 @@ function App() {
   const card = (s: Scenario) => {
     const Icon = icons[s.icon];
     const p = state.progress[s.id];
+    const practice = situationPracticeProgress(state, s);
+    const current = route === "home" && currentSituation?.id === s.id;
     return (
-      <button className="scenario-card" key={s.id} onClick={() => open(s)}>
+      <button className={"scenario-card" + (current ? " current-situation-card" : "")} key={s.id} onClick={() => open(s)} aria-current={current ? "step" : undefined}>
         <div className="card-top">
           <span className={`icon-tile ${s.icon}`}>
             <Icon size={23} />
           </span>
-          <span className="time">5 to 10 min</span>
+          <span className={current ? "current-situation-label" : "category"}>{current ? "Current situation" : s.category}</span>
         </div>
-        <span className="category">{s.category}</span>
         <h3>{s.title}</h3>
-        <p>{s.description}</p>
+        {route !== "home" && <p>{s.description}</p>}
         <div className="card-bottom">
-          <span>
+          <span title={`${practice.practised} of ${practice.total} phrases practised`}>
             {p?.completed ? (
               <>
                 <Check size={14} /> Completed
               </>
-            ) : p ? (
-              `In progress · ${Math.round((p.index / s.phrases.length) * 100)}%`
+            ) : practice.practised > 0 ? (
+              `In progress · ${practice.percent}%`
             ) : (
-              `${s.phrases.length} useful phrases`
+              route === "home" ? "Not started · 0%" : `${s.phrases.length} useful phrases`
             )}
           </span>
           <span className="round-arrow">
@@ -317,11 +319,11 @@ function App() {
             <ArrowRight size={17} />
           </span>
         </div>
-        {p && (
-          <div className="progress-line">
+        {(p || practice.practised > 0 || route === "home") && (
+          <div className="progress-line" role="progressbar" aria-label={s.title + " phrases practised"} aria-valuenow={practice.percent} aria-valuemin={0} aria-valuemax={100} aria-valuetext={`${practice.practised} of ${practice.total} phrases practised`}>
             <i
               style={{
-                width: `${p.completed ? 100 : (p.index / s.phrases.length) * 100}%`,
+                width: `${practice.percent}%`,
               }}
             />
           </div>
@@ -902,16 +904,14 @@ function App() {
                   Choose another situation when you’ve finished your current
                   one.
                 </p>
-                <button className="text-button" onClick={() => nav("settings")}>
-                  Choose situations <Settings size={15} />
-                </button>
+
               </div>
-              <div className="card-grid">{selected.map(card)}</div>
+              <div className="card-grid">{[...selected].sort((a, b) => Number(b.id === currentSituation?.id) - Number(a.id === currentSituation?.id)).map(card)}</div>
               {!selected.length && (
                 <div className="empty">
                   <p>Choose the conversations you want to prepare for.</p>
-                  <button className="primary" onClick={() => nav("settings")}>
-                    Choose my situations
+                  <button className="primary" onClick={() => nav("library")}>
+                    Browse situations
                   </button>
                 </div>
               )}

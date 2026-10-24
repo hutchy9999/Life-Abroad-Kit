@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { fresh } from "./storage";
 import {
   activeSituation,
+  situationPracticeProgress,
   pickQuickPhrase,
   recordQuickPhrase,
 } from "./quickPractice";
@@ -101,5 +102,18 @@ describe("reviewed phrase statistics", () => {
     expect(s.recall[card.phrase.id]).toEqual({ again: 1, got: 1, lastKnown: false });
     s = recordQuickPhrase(s, card, true);
     expect(s.recall[card.phrase.id]).toEqual({ again: 1, got: 2, lastKnown: true });
+  });
+});
+
+describe("situation practice progress", () => {
+  it("counts distinct practised phrases equally for either answer, without counting repeats twice", () => {
+    const initial = { ...fresh(), selected: ["flat"] };
+    const card = pickQuickPhrase(initial)!;
+    let s = recordQuickPhrase(initial, card, false);
+    s = recordQuickPhrase(s, card, true);
+    expect(situationPracticeProgress(s, card.scenario)).toEqual({practised:1,total:8,percent:13});
+    const other = { scenario: card.scenario, phrase: card.scenario.phrases[1] };
+    s = recordQuickPhrase(s, other, true);
+    expect(situationPracticeProgress(s, card.scenario).percent).toBe(25);
   });
 });

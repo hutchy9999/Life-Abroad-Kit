@@ -79,3 +79,11 @@ export function recordQuickPhrase(
     },
   };
 }
+
+export function situationPracticeProgress(state: State, scenario: Scenario) {
+  const practised = scenario.phrases.filter((p) => {
+    const r = state.recall[p.id];
+    return r && r.again + r.got > 0;
+  }).length;
+  return { practised, total: scenario.phrases.length, percent: Math.round(practised / scenario.phrases.length * 100) };
+}
