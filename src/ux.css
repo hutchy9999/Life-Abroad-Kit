@@ -1476,3 +1476,5 @@ main {
 .round-list-toggle { margin-top: 8px; min-height: 48px; }
 .all-practised-page { margin-top: 0; }
 .all-practised-page .reviewed-situation { margin-bottom: 16px; }
+
+.phrase-speaker { display: block; margin-bottom: 4px; font-family: "DM Sans", sans-serif; font-size: 0.8125rem; font-weight: 500; line-height: 1.4; color: #b8c6d2; }

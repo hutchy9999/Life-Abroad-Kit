@@ -674,6 +674,7 @@ function App() {
                     aria-labelledby={"phrase-" + p.id}
                   >
                     <div className="browse-phrase-title">
+                      {p.speaker && <span className="phrase-speaker">{p.speaker === "native" ? "You might hear" : "You can say"}</span>}
                       <h2 id={"phrase-" + p.id} lang="es">
                         {p.es}
                       </h2>
@@ -836,6 +837,7 @@ function App() {
                   <>
                     <div className="quick-phrase-card">
                       <div className="quick-phrase-line">
+                        {homePhrase.phrase.speaker && <span className="phrase-speaker">{homePhrase.phrase.speaker === "native" ? "You might hear" : "You can say"}</span>}
                         <h2 lang="es" tabIndex={-1}>
                           {homePhrase.phrase.es}
                         </h2>

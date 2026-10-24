@@ -40,7 +40,7 @@ describe("Spanish launch content", () => {
     const ids = scenarios.flatMap((s) => [s.id, ...s.phrases.map((p) => p.id)]);
     expect(new Set(ids).size).toBe(ids.length);
     for (const s of scenarios) {
-      expect(s.phrases).toHaveLength(8);
+      expect(s.phrases).toHaveLength(s.id === "repairs" ? 20 : 8);
       expect(s.dialogue.length).toBeGreaterThanOrEqual(4);
       expect(s.stages).toHaveLength(4);
       expect(s.reviewStatus).toBe("draft");
@@ -62,5 +62,15 @@ describe("latest self-assessment compatibility", () => {
   });
   it("rejects a damaged latest answer", () => {
     expect(() => decode(JSON.stringify({ ...fresh(), recall: { "flat-p1": { again: 1, got: 2, lastKnown: "yes" } } }))).toThrow();
+  });
+});
+
+describe("expanded repair situation", () => {
+  it("keeps original IDs attached to their original Spanish and mixes both speakers", () => {
+    const repairs = scenarios.find(s => s.id === "repairs")!;
+    const original = ["Llamo porque tengo un problema con el grifo.", "¿Hacéis reparaciones a domicilio?", "El agua sale muy fría.", "Lleva dos días goteando.", "¿Cuándo podrías venir?", "Por la mañana estoy en casa.", "¿Me puedes dar un presupuesto?", "Avísame antes de venir, por favor."];
+    original.forEach((es, i) => expect(repairs.phrases.find(p => p.id === "repairs-p" + (i + 1))?.es).toBe(es));
+    expect(repairs.phrases.filter(p => p.speaker === "native")).toHaveLength(6);
+    expect(repairs.phrases.filter(p => p.speaker === "you")).toHaveLength(14);
   });
 });

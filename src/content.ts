@@ -1,4 +1,5 @@
 export type Phrase = {
+  speaker?: "you" | "native";
   id: string;
   es: string;
   en: string;
@@ -47,6 +48,95 @@ function scenario(
       stage: Math.min(3, Math.floor(i / (rows.length / 4))),
     })),
     dialogue: dialogue.map(([speaker, es, en]) => ({ speaker, es, en })),
+  };
+}
+function expandRepairs(base: Scenario): Scenario {
+  const added: [string, string, "you" | "native", string][] = [
+  [
+    "¿Desde cuándo pasa?",
+    "How long has this been happening?",
+    "native",
+    "The repair person asks when the problem started. Desde cuándo asks about a starting point."
+  ],
+  [
+    "Empezó ayer por la tarde.",
+    "It started yesterday afternoon.",
+    "you",
+    "Give a starting time. Swap ayer por la tarde for el lunes or esta mañana. This is an alternative to giving a duration."
+  ],
+  [
+    "¿Pasa todo el tiempo o solo a veces?",
+    "Does it happen all the time or only sometimes?",
+    "native",
+    "The repair person checks how often the fault happens. Listen for todo el tiempo and solo a veces."
+  ],
+  [
+    "Solo pasa cuando abro el grifo.",
+    "It only happens when I turn on the tap.",
+    "you",
+    "Solo pasa cuando… introduces what triggers a problem. Change the action to suit the fault."
+  ],
+  [
+    "¿Puedes mandarme una foto?",
+    "Can you send me a photo?",
+    "native",
+    "The repair person asks for a photo before visiting. ¿Puedes mandarme…? also works with un vídeo."
+  ],
+  [
+    "Sí, te la mando ahora.",
+    "Yes, I’ll send it to you now.",
+    "you",
+    "Reply to a request for a photo. La refers to la foto; for un vídeo, say te lo mando."
+  ],
+  [
+    "Puedo pasar mañana de nueve a once.",
+    "I can come tomorrow between nine and eleven.",
+    "native",
+    "The repair person offers a time window. De… a… gives the start and end times."
+  ],
+  [
+    "A esa hora no estoy. ¿Puedes venir por la tarde?",
+    "I won’t be home then. Can you come in the afternoon?",
+    "you",
+    "Decline a proposed time and offer an alternative. Swap por la tarde for por la mañana."
+  ],
+  [
+    "Sí, sobre las cuatro. ¿Te viene bien?",
+    "Yes, around four. Does that work for you?",
+    "native",
+    "The repair person offers another time. Sobre means approximately when talking about time."
+  ],
+  [
+    "Sí, a las cuatro me viene bien.",
+    "Yes, four works for me.",
+    "you",
+    "Confirm a suitable time. A las… me viene bien works with other appointment times."
+  ],
+  [
+    "Primero tengo que verlo para darte un presupuesto.",
+    "I need to look at it first before I can give you a quote.",
+    "native",
+    "The repair person explains that an inspection is needed before quoting. Tengo que… means I need to."
+  ],
+  [
+    "De acuerdo. Dime cuánto cuesta antes de hacer la reparación.",
+    "Okay. Tell me how much it costs before doing the repair.",
+    "you",
+    "Ask to hear the price before work starts. Antes de… sets a condition about what happens first."
+  ]
+];
+  const originals = base.phrases.map((p) => ({ ...p, speaker: "you" as const }));
+  const extra: Phrase[] = added.map(([es, en, speaker, pattern], i) => ({
+    id: "repairs-p" + (i + 9), es, en, speaker, pattern,
+    prompt: speaker === "native" ? "Understand: “" + es + "”" : "Say: “" + en + "”", stage: 0,
+  }));
+  const byId = new Map([...originals, ...extra].map((p) => [p.id, p]));
+  const order = [1, 2, 3, 9, 4, 10, 11, 12, 13, 14, 5, 15, 6, 16, 17, 18, 7, 19, 20, 8];
+  return {
+    ...base,
+    description: "Explain a problem, understand the reply and arrange a repair.",
+    stages: ["Explain the problem", "Give more detail", "Arrange a visit", "Agree the next steps"],
+    phrases: order.map((number, i) => ({ ...byId.get("repairs-p" + number)!, stage: Math.floor(i / 5) })),
   };
 }
 export const scenarios: Scenario[] = [
@@ -195,7 +285,7 @@ export const scenarios: Scenario[] = [
       ],
     ],
   ),
-  scenario(
+  expandRepairs(scenario(
     "repairs",
     "Home & accommodation",
     "Getting something fixed",
@@ -263,7 +353,7 @@ export const scenarios: Scenario[] = [
         "Perfect. Please let me know before you come.",
       ],
     ],
-  ),
+  )),
   scenario(
     "appointment",
     "Health & emergencies",

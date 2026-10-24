@@ -42,7 +42,7 @@ npm run preview
 
 ## Content
 
-All 12 initial scenarios / 96 phrases are **drafts requiring linguistic review before public launch**. Review naturalness, translations, register, regional usage and whether dialogues prepare both participants. This is language practice; health and administration scenarios do not provide medical or legal advice.
+All 12 initial scenarios / 108 phrases are **drafts requiring linguistic review before public launch**. Review naturalness, translations, register, regional usage and whether dialogues prepare both participants. This is language practice; health and administration scenarios do not provide medical or legal advice.
 
 To add a scenario, add a `scenario(...)` entry in `src/content.ts`, giving it a unique permanent ID, one category, four stages, eight or more phrase rows and a two-way dialogue. Existing IDs must remain stable after wording changes; changing IDs disconnects saved progress. Phrase counts and stage grouping adapt to the content. Do not reuse a retired ID for different content.
 
@@ -62,7 +62,7 @@ Malformed or unknown-version storage is not overwritten: the app starts a tempor
 
 ## Audio
 
-All 96 phrases use saved Spain-Spanish Elvira recordings generated with Azure Speech (
+All 108 phrases use saved Spain-Spanish Elvira recordings generated with Azure Speech (
 `es-ES-ElviraNeural`, natural speed, 48 kHz / 192 kbps MP3). Listen plays the same
 recording on every device. Recordings are AI-generated and still require a linguistic
 quality check before public launch. Playback does not call Azure or need an API key.
@@ -103,3 +103,5 @@ My learning includes a compact Practised phrases list for the current situation,
 Situation cards show distinct phrases practised as a percentage, rather than the next-phrase index. Both self-assessment answers count equally, and repeating a phrase does not inflate this percentage. My learning lists the current situation first and uses compact cards with a clear current label.
 
 The home phrase list is scoped to the current ten-practice round, with repeated phrases combined and five rows visible initially. Show all expands that round. Starting another round clears this list while keeping lifetime counts and known-phrase outlines. The current situation links to a separate full practised-phrase view.
+
+Getting something fixed is the first expanded content pilot: 20 phrases, including 14 learner phrases and six replies to recognise. Original repairs-p1 through repairs-p8 IDs keep their original text. The list follows a conversation with alternative symptom and availability responses; it is not a single dialogue to memorise. Speaker cues distinguish what learners can say from what they might hear. The other 11 situations still have eight phrases each.
