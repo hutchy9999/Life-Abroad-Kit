@@ -1377,3 +1377,16 @@ main {
   color: var(--muted);
   text-align: center;
 }
+
+.welcome-examples {
+  width: fit-content;
+  max-width: 100%;
+  margin: 16px auto 0;
+  padding-left: 20px;
+  text-align: left;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.welcome-examples li + li { margin-top: 6px; }
+.welcome-examples li::marker { color: #ff9b6b; }
