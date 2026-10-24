@@ -401,8 +401,8 @@ function App() {
         {!state.onboarded && route !== "settings" ? (
           <section className="onboarding">
             <div className="onboarding-intro">
-              <h1>Make yourself <span>at home.</span></h1>
-              <p>Learn what you’ll actually need to say before you need to say it.</p>
+              <h1>Prepare yourself for <span>life abroad.</span></h1>
+              <p>Find useful phrases for everyday situations, practise them in advance, and look them up when you need them.</p>
             </div>
             <div className="onboarding-panel">
               {step === 0 ? (
