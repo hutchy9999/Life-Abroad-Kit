@@ -101,7 +101,7 @@ export const scenarios: Scenario[] = [
     ],
     [
       [
-        "Agent",
+        "Native speaker",
         "¿Buscas algo para larga temporada?",
         "Are you looking for a long-term rental?",
       ],
@@ -110,7 +110,11 @@ export const scenarios: Scenario[] = [
         "Sí, me voy a quedar al menos un año.",
         "Yes, I’m going to stay at least a year.",
       ],
-      ["Agent", "La fianza es de un mes.", "The deposit is one month’s rent."],
+      [
+        "Native speaker",
+        "La fianza es de un mes.",
+        "The deposit is one month’s rent.",
+      ],
       ["You", "¿Los gastos están incluidos?", "Are bills included?"],
     ],
   ),

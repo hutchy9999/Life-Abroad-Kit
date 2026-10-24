@@ -35,6 +35,12 @@ import { scenarios, categories, type Scenario, type Phrase } from "./content";
 import { load, KEY, fresh, type State } from "./storage";
 import { playAudio, stopAudio } from "./audio";
 import { track, vocoUrl } from "./analytics";
+import {
+  activeSituation,
+  pickQuickPhrase,
+  recordQuickPhrase,
+  type QuickPhrase,
+} from "./quickPractice";
 import "./style.css";
 import "./brand.css";
 import "./ux.css";
@@ -73,6 +79,10 @@ function App() {
   const [reviewIds, setReviewIds] = useState<string[]>([]);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewDone, setReviewDone] = useState(false);
+  const [homePhrase, setHomePhrase] = useState<QuickPhrase | null>(() =>
+    pickQuickPhrase(initial.state),
+  );
+  const [homeCount, setHomeCount] = useState(0);
   useEffect(() => {
     const f = () => {
       stopAudio();
@@ -180,6 +190,23 @@ function App() {
     : 0;
   const phrase = scenario?.phrases[idx];
   const selected = scenarios.filter((s) => state.selected.includes(s.id));
+  const currentSituation = activeSituation(state);
+  useEffect(() => {
+    if (route === "home") {
+      setHomePhrase(pickQuickPhrase(state));
+      setHomeCount(0);
+      setRevealed(false);
+    }
+  }, [route, currentSituation?.id]);
+  useEffect(() => {
+    if (route === "home" && homeCount > 0) {
+      document
+        .querySelector<HTMLElement>(
+          ".home-quick .quick-phrase-line h2, .quick-finished h2",
+        )
+        ?.focus();
+    }
+  }, [homeCount]);
   useEffect(() => {
     if ((tab === "practice" || route === "review") && !reviewDone) {
       document.querySelector<HTMLElement>(".recall-prompt")?.focus();
@@ -190,6 +217,7 @@ function App() {
     update((v) => ({
       ...v,
       last: s.id,
+      selected: v.selected.includes(s.id) ? v.selected : [...v.selected, s.id],
       progress: {
         ...v.progress,
         [s.id]: v.progress[s.id] || { index: 0, completed: false },
@@ -383,7 +411,7 @@ function App() {
       </button>
     );
   };
-  const phraseCard = (p: Phrase) => (
+  const phraseCard = (p: Phrase, showSlow = true) => (
     <div className="phrase-card">
       <div className="phrase-top">
         <span className="eyebrow">USEFUL PHRASE</span>
@@ -403,7 +431,9 @@ function App() {
           </span>
         </button>
       </div>
-      <h2 lang="es">{p.es}</h2>
+      <h2 lang="es" tabIndex={-1}>
+        {p.es}
+      </h2>
       {revealed ? (
         <p className="translation" role="status">
           {p.en}
@@ -413,13 +443,24 @@ function App() {
           Show English translation
         </button>
       )}
-      {audioButtons(p)}
+      {audioButtons(p, showSlow)}
       <div className="pattern">
         <span className="eyebrow">HOW TO USE IT</span>
         <p>{p.pattern}</p>
       </div>
     </div>
   );
+  function rateHomePhrase(known: boolean) {
+    if (!homePhrase) return;
+    stopAudio();
+    setAudio(null);
+    setRevealed(false);
+    const next = recordQuickPhrase(state, homePhrase, known);
+    setState(next);
+    track("phrase_reviewed");
+    setHomeCount((n) => n + 1);
+    setHomePhrase(pickQuickPhrase(next, homePhrase.phrase.id));
+  }
   const recallCard = (p: Phrase) => (
     <div className="recall-card">
       <span className="pill">
@@ -474,9 +515,7 @@ function App() {
       </a>
       <header inert={reset}>
         <a className="brand" href="#home" aria-label="Life Abroad Kit home">
-          <span>
-            Life Abroad Kit<small>BY JAMES HUTCHINSON LANGUAGES</small>
-          </span>
+          <span>Life Abroad Kit</span>
         </a>
         {state.onboarded && (
           <nav aria-label="Main navigation">
@@ -1083,80 +1122,147 @@ function App() {
           </section>
         ) : (
           <section className="learning-home">
-            <div className="section-heading">
-              <div>
-                <h1>Your situations</h1>
-                <p>Choose a situation to start or continue learning.</p>
-              </div>
-              <button className="text-button" onClick={() => nav("settings")}>
-                Choose situations <Settings size={15} />
-              </button>
-            </div>
-            {state.last &&
-              scenarios.find((s) => s.id === state.last) &&
-              !state.progress[state.last]?.completed && (
-                <div className="continue-learning">
-                  <button
-                    className="resume-button"
-                    onClick={() =>
-                      open(scenarios.find((s) => s.id === state.last)!)
-                    }
-                  >
-                    <span className="resume-text">
-                      <span>Continue learning</span>
-                      <strong>
-                        {scenarios.find((s) => s.id === state.last)!.title}
-                      </strong>
+            <h1 className="home-title">My learning</h1>
+            {homePhrase && (
+              <section
+                className="home-quick"
+                aria-label="Quick phrase practice"
+              >
+                <div className="quick-context">
+                  <div>
+                    <span className="eyebrow">
+                      {state.progress[homePhrase.scenario.id]?.completed
+                        ? "REVIEW A SITUATION"
+                        : "YOUR CURRENT SITUATION"}
                     </span>
-                    <ArrowRight size={18} aria-hidden="true" />
+                    <h2 tabIndex={-1}>{homePhrase.scenario.title}</h2>
+                  </div>
+                  <span className="quick-count">
+                    {Math.min(homeCount + 1, 3)} of 3
+                  </span>
+                </div>
+                {homeCount < 3 ? (
+                  <>
+                    <div className="quick-phrase-card">
+                      <div className="quick-phrase-line">
+                        <h2 lang="es" tabIndex={-1}>
+                          {homePhrase.phrase.es}
+                        </h2>
+                        <button
+                          className={
+                            "icon-button " +
+                            (state.bookmarks.includes(homePhrase.phrase.id)
+                              ? "marked"
+                              : "")
+                          }
+                          aria-label={
+                            state.bookmarks.includes(homePhrase.phrase.id)
+                              ? "Saved. Remove saved phrase"
+                              : "Save phrase"
+                          }
+                          aria-pressed={state.bookmarks.includes(
+                            homePhrase.phrase.id,
+                          )}
+                          onClick={() => bookmark(homePhrase.phrase.id)}
+                        >
+                          <Heart size={21} />
+                        </button>
+                      </div>
+                      {revealed && (
+                        <p className="translation" role="status">
+                          {homePhrase.phrase.en}
+                        </p>
+                      )}
+                      <div className="quick-card-actions">
+                        {audioButtons(homePhrase.phrase, false)}
+                        {!revealed && (
+                          <button
+                            className="text-button"
+                            onClick={() => setRevealed(true)}
+                          >
+                            Show meaning
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="quick-feedback">
+                      <button
+                        className="secondary"
+                        onClick={() => rateHomePhrase(false)}
+                      >
+                        Review again
+                      </button>
+                      <button
+                        className="primary"
+                        onClick={() => rateHomePhrase(true)}
+                      >
+                        I know this <ArrowRight size={17} />
+                      </button>
+                    </div>
+                    <button
+                      className="text-button open-current"
+                      onClick={() => open(homePhrase.scenario)}
+                    >
+                      Open full lesson <ArrowRight size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <div className="quick-finished">
+                    <Check size={28} />
+                    <h2 tabIndex={-1}>Three phrases practised.</h2>
+                    <p>
+                      Pick up the rest of this situation whenever you’re ready.
+                    </p>
+                    <div className="button-row">
+                      <button
+                        className="primary"
+                        onClick={() => open(homePhrase.scenario)}
+                      >
+                        Continue lesson <ArrowRight size={17} />
+                      </button>
+                      <button
+                        className="secondary"
+                        onClick={() => {
+                          setHomeCount(0);
+                          setHomePhrase(
+                            pickQuickPhrase(state, homePhrase.phrase.id),
+                          );
+                          setRevealed(false);
+                        }}
+                      >
+                        Practise three more
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+            <details className="my-situations" open={!homePhrase}>
+              <summary>
+                Your situations <span>({selected.length})</span>
+              </summary>
+              <div className="section-heading">
+                <p>
+                  Choose another situation when you’ve finished your current
+                  one.
+                </p>
+                <button className="text-button" onClick={() => nav("settings")}>
+                  Choose situations <Settings size={15} />
+                </button>
+              </div>
+              <div className="card-grid">{selected.map(card)}</div>
+              {!selected.length && (
+                <div className="empty">
+                  <p>Choose the conversations you want to prepare for.</p>
+                  <button className="primary" onClick={() => nav("settings")}>
+                    Choose my situations
                   </button>
                 </div>
               )}
-            <div className="card-grid">{selected.map(card)}</div>
-            {!selected.length && (
-              <div className="empty">
-                <p>Choose the conversations you want to prepare for.</p>
-                <button className="primary" onClick={() => nav("settings")}>
-                  Choose my situations
-                </button>
-              </div>
-            )}
+            </details>
             <button className="explore-more" onClick={() => nav("library")}>
               <Plus size={19} /> Browse all situations <ArrowRight size={17} />
             </button>
-            <div className="tool-grid">
-              <button className="tool-card" onClick={() => nav("phrases")}>
-                <Heart size={23} />
-                <div>
-                  <h3>Saved phrases</h3>
-                  <p>
-                    {state.bookmarks.length} saved{" "}
-                    {state.bookmarks.length === 1 ? "phrase" : "phrases"}.
-                  </p>
-                </div>
-                <ChevronRight size={20} />
-              </button>
-              <button
-                className="tool-card"
-                onClick={() =>
-                  review([...state.bookmarks, ...Object.keys(state.recall)])
-                }
-              >
-                <RotateCcw size={23} />
-                <div>
-                  <h3>Quick review</h3>
-                  <p>A quick review of saved and practised phrases.</p>
-                </div>
-                <ChevronRight size={20} />
-              </button>
-            </div>
-            <div className="gentle-note">
-              <MessageCircle size={20} />
-              <p>
-                You don’t need perfect Spanish. Just a few words to open the
-                next conversation.
-              </p>
-            </div>
           </section>
         )}
       </main>
