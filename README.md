@@ -28,7 +28,10 @@ npm run preview
 - `src/storage.ts`: versioned storage validation and safe recovery.
 - `src/audio.ts`: browser audio adapter; replace the implementation here to introduce recorded audio.
 - `src/analytics.ts`: disabled-by-default event hook and Voco campaign URLs.
-- `src/style.css`: design tokens, components, responsive layouts and reduced-motion support.
+- `src/style.css`: component layouts and reduced-motion support.
+- `src/brand.css`: navy/orange brand styling and Omnes typography.
+- `src/ux.css`: readable type scale, touch targets, focus states and responsive reflow.
+- `docs/UX-REVIEW.md`: UX changes, accessibility checks and verification limits.
 - `src/storage.test.ts`: content integrity and persistence validation tests.
 - `docs/DEPLOYMENT.md`: hosting choices and domain integration.
 

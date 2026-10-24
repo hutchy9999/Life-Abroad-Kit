@@ -54,7 +54,7 @@ export const scenarios: Scenario[] = [
     "flat",
     "Home & accommodation",
     "Viewing an apartment",
-    "Find a place that feels like home. Ask the questions that matter.",
+    "Ask about rent, bills, deposits and availability.",
     "home",
     ["First impressions", "The details", "Costs & conditions", "Next steps"],
     [
@@ -118,7 +118,7 @@ export const scenarios: Scenario[] = [
     "landlord",
     "Home & accommodation",
     "Talking to your landlord",
-    "Resolve everyday questions about your home with confidence.",
+    "Ask questions about your rental and confirm an agreement.",
     "key",
     [
       "Get in touch",
@@ -195,7 +195,7 @@ export const scenarios: Scenario[] = [
     "repairs",
     "Home & accommodation",
     "Getting something fixed",
-    "Explain what’s broken and arrange a visit.",
+    "Explain what’s broken, arrange a visit and ask for a quote.",
     "wrench",
     [
       "Make contact",
@@ -264,7 +264,7 @@ export const scenarios: Scenario[] = [
     "appointment",
     "Health & emergencies",
     "Booking a doctor’s appointment",
-    "Make the call, find a time and know where to go.",
+    "Book an appointment, agree a time and check what to bring.",
     "calendar",
     [
       "Ask for an appointment",
@@ -337,7 +337,7 @@ export const scenarios: Scenario[] = [
     "doctor",
     "Health & emergencies",
     "Describing your symptoms",
-    "Explain what’s wrong and understand what happens next.",
+    "Describe your symptoms and ask about the next steps.",
     "heart",
     [
       "Explain why you’re here",
@@ -413,7 +413,7 @@ export const scenarios: Scenario[] = [
     "pharmacy",
     "Health & emergencies",
     "At the pharmacy",
-    "Ask for help and understand how to use a medicine.",
+    "Explain what you need and ask how to take a medicine.",
     "cross",
     [
       "Ask for help",
@@ -611,7 +611,7 @@ export const scenarios: Scenario[] = [
     "neighbours",
     "Social life",
     "Meeting your neighbours",
-    "Make a first connection and feel more at home.",
+    "Introduce yourself and ask about the neighbourhood.",
     "people",
     ["Say hello", "Introduce yourself", "Find common ground", "Keep in touch"],
     [
@@ -675,7 +675,7 @@ export const scenarios: Scenario[] = [
     "plans",
     "Social life",
     "Making plans with friends",
-    "Turn a friendly chat into a plan you can look forward to.",
+    "Suggest a plan, agree a time or rearrange a meeting.",
     "coffee",
     [
       "Suggest a plan",
