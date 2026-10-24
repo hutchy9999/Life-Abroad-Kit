@@ -57,7 +57,7 @@ Malformed or unknown-version storage is not overwritten: the app starts a tempor
 
 ## Audio
 
-The adapter selects an installed `es-ES` voice, then another Spanish voice. Listen speaks the Spanish text and toggles Stop while playing. Saved phrases has only Listen; lesson cards also offer slower playback. A new phrase cancels previous audio. When voices are still loading, the browser resolves the requested Spanish locale automatically. Playback failures show a clear message and retain all text features. Device voices may use operating-system speech services; pronunciation and offline availability depend on the device. Verify playback on actual Safari/iOS and Chrome/Android devices before release.
+The adapter selects an installed `es-ES` voice, then another Spanish voice. Listen speaks the Spanish text and toggles Stop while playing. All phrase cards and dialogue lines use a single Listen control. A new phrase cancels previous audio. When voices are still loading, the browser resolves the requested Spanish locale automatically. Playback failures show a clear message and retain all text features. Device voices may use operating-system speech services; pronunciation and offline availability depend on the device. Verify playback on actual Safari/iOS and Chrome/Android devices before release.
 
 ## Analytics
 

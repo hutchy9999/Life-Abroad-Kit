@@ -341,7 +341,7 @@ function App() {
       </a>
     </div>
   );
-  const audioButtons = (p: Phrase | string, showSlow = true) => (
+  const audioButtons = (p: Phrase | string) => (
     <div className="audio-buttons">
       <button
         className="audio"
@@ -359,11 +359,6 @@ function App() {
         )}{" "}
         {audio === (typeof p === "string" ? p : p.es) ? "Stop audio" : "Listen"}
       </button>
-      {showSlow && (
-        <button className="text-button" onClick={() => listen(p, true)}>
-          Play slowly
-        </button>
-      )}
     </div>
   );
   const card = (s: Scenario) => {
@@ -411,7 +406,7 @@ function App() {
       </button>
     );
   };
-  const phraseCard = (p: Phrase, showSlow = true) => (
+  const phraseCard = (p: Phrase) => (
     <div className="phrase-card">
       <div className="phrase-top">
         <span className="eyebrow">USEFUL PHRASE</span>
@@ -443,7 +438,7 @@ function App() {
           Show English translation
         </button>
       )}
-      {audioButtons(p, showSlow)}
+      {audioButtons(p)}
       <div className="pattern">
         <span className="eyebrow">HOW TO USE IT</span>
         <p>{p.pattern}</p>
@@ -1006,7 +1001,7 @@ function App() {
                         </div>
                         <h3 lang="es">{p.es}</h3>
                         <p>{p.en}</p>
-                        {audioButtons(p, false)}
+                        {audioButtons(p)}
                       </div>
                     ))}
                 </div>
@@ -1174,7 +1169,7 @@ function App() {
                         </p>
                       )}
                       <div className="quick-card-actions">
-                        {audioButtons(homePhrase.phrase, false)}
+                        {audioButtons(homePhrase.phrase)}
                         {!revealed && (
                           <button
                             className="text-button"
