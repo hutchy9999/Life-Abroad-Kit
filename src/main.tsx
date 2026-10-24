@@ -372,6 +372,7 @@ function App() {
             ))}
           </nav>
         )}
+        {state.onboarded && (
         <button
           className="icon-button settings"
           aria-label="Settings"
@@ -379,6 +380,7 @@ function App() {
         >
           <Settings size={21} />
         </button>
+        )}
       </header>
       {storageError && (
         <div className="notice" role="status">
