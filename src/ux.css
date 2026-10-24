@@ -1309,3 +1309,63 @@ main {
 .browse-phrase-title {
   display: block;
 }
+
+/* A short, centred welcome keeps setup close to the introduction. */
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 0;
+}
+.onboarding-intro {
+  width: 100%;
+  max-width: 680px;
+  padding: 0;
+  text-align: center;
+}
+.onboarding-intro h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.12;
+  margin: 0;
+}
+.onboarding-intro h1 > span {
+  display: inline;
+  margin: 0;
+}
+.onboarding-intro > p {
+  max-width: 560px;
+  margin: 12px auto 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.onboarding-panel {
+  width: 100%;
+  max-width: 520px;
+  min-width: 0;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+}
+.onboarding-panel h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+.onboarding-panel .choice,
+.onboarding-panel .pick,
+.onboarding-panel .language-choice {
+  text-align: left;
+}
+@media (max-width: 620px) {
+  main:has(.onboarding) { padding-top: 24px; padding-bottom: 32px; }
+  .onboarding { gap: 20px; }
+  .onboarding-panel { padding: 20px; }
+}
+
+.language-flag {
+  display: block;
+  flex-shrink: 0;
+  width: 30px;
+  height: 20px;
+  border-radius: 2px;
+}

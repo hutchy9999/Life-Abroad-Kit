@@ -401,41 +401,18 @@ function App() {
         {!state.onboarded && route !== "settings" ? (
           <section className="onboarding">
             <div className="onboarding-intro">
-              <span className="eyebrow">FREE SPANISH PRACTICE</span>
-              <h1>
-                Make yourself <br />
-                at home.<span>In Spanish.</span>
-              </h1>
-              <p>
-                Learn what you’ll actually need to say.
-                <br />
-                Before you need to say it.
-              </p>
-              <div className="intro-features">
-                <span>
-                  <Check size={16} /> Completely free
-                </span>
-                <span>
-                  <Check size={16} /> No account needed
-                </span>
-                <span>
-                  <Check size={16} /> Made for real life
-                </span>
-              </div>
+              <h1>Make yourself <span>at home.</span></h1>
+              <p>Learn what you’ll actually need to say before you need to say it.</p>
             </div>
             <div className="onboarding-panel">
-              <div className="step-dots">
-                {[0, 1, 2].map((i) => (
-                  <i key={i} className={i <= step ? "filled" : ""} />
-                ))}
-              </div>
-              <span className="eyebrow">GET STARTED · {step + 1} OF 3</span>
               {step === 0 ? (
                 <>
-                  <h2>Which language are you learning?</h2>
-                  <p>Let’s start with the language you’re learning.</p>
+                  <h2>Get started</h2>
                   <div className="language-choice">
-                    <span className="flag">🇪🇸</span>
+                    <svg className="language-flag" viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" focusable="false">
+                      <rect width="30" height="20" rx="2" fill="#c60b1e" />
+                      <path d="M0 5h30v10H0z" fill="#ffc400" />
+                    </svg>
                     <span>
                       <strong>Spanish</strong>
                       <small>Everyday Spanish for life in Spain</small>
@@ -444,9 +421,7 @@ function App() {
                       <Check size={15} />
                     </span>
                   </div>
-                  <p className="muted">
-                    Spanish is the only language available for now.
-                  </p>
+
                   <button
                     className="primary wide"
                     onClick={() => {
@@ -539,7 +514,6 @@ function App() {
                   </button>
                 </>
               )}
-              {savedNotice}
             </div>
           </section>
         ) : route === "settings" ? (
