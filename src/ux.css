@@ -1369,3 +1369,11 @@ main {
   height: 20px;
   border-radius: 2px;
 }
+
+.onboarding-panel .welcome-free-note {
+  margin: 12px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
+  text-align: center;
+}

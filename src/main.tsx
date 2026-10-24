@@ -432,6 +432,7 @@ function App() {
                   >
                     Continue <ArrowRight size={18} />
                   </button>
+                  <p className="welcome-free-note">Free to use. No email or sign-up required.</p>
                 </>
               ) : step === 1 ? (
                 <>
