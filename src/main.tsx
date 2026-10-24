@@ -59,6 +59,7 @@ function App() {
   const [storageError, setStorageError] = useState(initial.error);
   const [blocked, setBlocked] = useState(initial.blocked);
   const [route, setRoute] = useState(location.hash.slice(1) || "home");
+  const settingsReturnPath = useRef("home");
   const [step, setStep] = useState(0);
   const [selection, setSelection] = useState(state.selected);
   const [situation, setSituation] = useState(state.situation);
@@ -164,6 +165,8 @@ function App() {
   }, [revealed]);
   const update = (fn: (s: State) => State) => setState(fn);
   const nav = (r: string) => {
+    if (r === "settings" && route !== "settings")
+      settingsReturnPath.current = route;
     location.hash = r;
   };
   const all = scenarios.flatMap((s) =>
@@ -660,6 +663,13 @@ function App() {
           </section>
         ) : route === "settings" ? (
           <section className="narrow">
+            <button
+              className="text-button back settings-back"
+              onClick={() => nav(settingsReturnPath.current)}
+              aria-label="Back to previous page"
+            >
+              <ArrowLeft size={18} /> Back
+            </button>
             <span className="eyebrow">SETTINGS</span>
             <h1>Your preferences</h1>
             <p>Spanish · For life in Spain</p>
@@ -1053,55 +1063,36 @@ function App() {
             </button>
           </section>
         ) : (
-          <section>
-            <div className="dashboard-hero">
-              <div>
-                <h1>Your Spanish practice</h1>
-                <p>
-                  Choose a situation to start, or continue where you left off.
-                </p>
-                <span className="language-tag">
-                  🇪🇸 Spanish for life in Spain <span>·</span> A2 to B1+
-                </span>
-              </div>
-            </div>
-            {state.last &&
-              scenarios.find((s) => s.id === state.last) &&
-              !state.progress[state.last]?.completed && (
-                <div className="continue">
-                  <span className="icon-tile">
-                    <BookOpen size={24} />
-                  </span>
-                  <div>
-                    <span className="eyebrow">CONTINUE LEARNING</span>
-                    <h3>{scenarios.find((s) => s.id === state.last)!.title}</h3>
-                    <p>
-                      Phrase {(state.progress[state.last]?.index || 0) + 1} of{" "}
-                      {
-                        scenarios.find((s) => s.id === state.last)!.phrases
-                          .length
-                      }{" "}
-                    </p>
-                  </div>
-                  <button
-                    className="primary"
-                    onClick={() =>
-                      open(scenarios.find((s) => s.id === state.last)!)
-                    }
-                  >
-                    Continue <ArrowRight size={17} />
-                  </button>
-                </div>
-              )}
+          <section className="learning-home">
             <div className="section-heading">
               <div>
-                <h2>Your situations</h2>
+                <h1>Your situations</h1>
                 <p>Choose a situation to start or continue learning.</p>
               </div>
               <button className="text-button" onClick={() => nav("settings")}>
                 Choose situations <Settings size={15} />
               </button>
             </div>
+            {state.last &&
+              scenarios.find((s) => s.id === state.last) &&
+              !state.progress[state.last]?.completed && (
+                <div className="continue-learning">
+                  <button
+                    className="resume-button"
+                    onClick={() =>
+                      open(scenarios.find((s) => s.id === state.last)!)
+                    }
+                  >
+                    <span className="resume-text">
+                      <span>Continue learning</span>
+                      <strong>
+                        {scenarios.find((s) => s.id === state.last)!.title}
+                      </strong>
+                    </span>
+                    <ArrowRight size={18} aria-hidden="true" />
+                  </button>
+                </div>
+              )}
             <div className="card-grid">{selected.map(card)}</div>
             {!selected.length && (
               <div className="empty">

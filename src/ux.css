@@ -202,7 +202,7 @@ footer small,
 .dashboard-hero {
   align-items: center;
   min-height: 0;
-  padding: 32px 36px;
+  padding: 24px 28px;
 }
 .dashboard-hero h1 {
   margin: 0 0 12px;
@@ -212,7 +212,7 @@ footer small,
 }
 .dashboard-hero h1,
 .dashboard-hero h1 em {
-  font-size: clamp(2rem, 3.7vw, 2.75rem);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -559,14 +559,14 @@ footer {
     grid-template-columns: 1fr;
   }
   .dashboard-hero {
-    padding: 28px 24px;
+    padding: 22px;
   }
   .dashboard-hero .eyebrow {
     font-size: 0.8125rem;
   }
   .dashboard-hero h1,
   .dashboard-hero h1 em {
-    font-size: 2rem;
+    font-size: 1.875rem;
   }
   .dashboard-hero p,
   .dashboard-hero .language-tag {
@@ -787,4 +787,78 @@ footer {
   header nav a {
     white-space: nowrap;
   }
+}
+
+.dashboard-hero .language-tag {
+  margin-top: 14px;
+  gap: 8px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #b8c6d2;
+}
+.dashboard-hero .language-tag > span {
+  padding: 0;
+}
+.dashboard-hero .language-tag svg {
+  color: #ff9b6b;
+}
+
+.settings-back {
+  display: flex;
+  width: fit-content;
+  margin-bottom: 12px;
+}
+
+.learning-home > .section-heading {
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+.learning-home > .section-heading h1 {
+  font-size: clamp(1.75rem, 3vw, 2rem);
+  margin-bottom: 6px;
+}
+.continue-learning {
+  margin: -12px 0 20px;
+}
+.continue-learning .text-button {
+  padding-inline: 0;
+  font-size: 0.9375rem;
+  color: #b8c6d2;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.resume-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  max-width: 420px;
+  padding: 12px 16px;
+  border: 1px solid #486071;
+  border-radius: 8px;
+  background: #0c2232;
+  text-align: left;
+}
+.resume-text {
+  display: grid;
+  gap: 2px;
+}
+.resume-text > span {
+  font-size: 0.875rem;
+  color: #b8c6d2;
+}
+.resume-text > strong {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8f9fb;
+  line-height: 1.5;
+}
+.resume-button > svg {
+  color: #b8c6d2;
+}
+.resume-button:hover {
+  background: #142f41;
+  border-color: #879eaf;
 }
