@@ -1,0 +1,324 @@
+/* James Hutchinson Languages: navy, warm orange and clear white type. */
+:root {
+  --navy: #071925;
+  --surface: #102737;
+  --orange: #ff702e;
+}
+h1,
+h2,
+h3 {
+  font-family: "Omnes", "Manrope", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+header {
+  background: #071925;
+}
+header .brand {
+  font-family: "Omnes", "Manrope", sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  line-height: 1;
+}
+.brand small {
+  font-family: "DM Sans", sans-serif;
+  font-size: 8px;
+  color: #b8c6d2;
+  letter-spacing: 1.65px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+nav a.active {
+  color: #ff9b6b;
+  background: #ff702e12;
+}
+.dashboard-hero {
+  background: #0b2030;
+  padding: 46px;
+  gap: 38px;
+}
+.dashboard-hero h1 {
+  font-size: 43px;
+  font-weight: 900;
+  line-height: 1.12;
+}
+.dashboard-hero h1 em {
+  font-family: "Omnes", "Manrope", sans-serif;
+  font-style: normal;
+  font-weight: 900;
+  color: #ff702e;
+  letter-spacing: -0.025em;
+}
+.dashboard-hero .language-tag {
+  color: #c7d1da;
+}
+.hero-conversation {
+  width: 300px;
+  flex-shrink: 0;
+  align-self: center;
+}
+.hero-conversation > .eyebrow {
+  font-size: 8px;
+  margin-bottom: 20px;
+}
+.hero-line {
+  background: #142f41;
+  border: 1px solid #345061;
+  border-radius: 13px 13px 13px 3px;
+  padding: 17px 18px;
+  margin-right: 24px;
+}
+.hero-line small {
+  display: block;
+  color: #b8c6d2;
+  font-size: 8px;
+  letter-spacing: 1.6px;
+  margin-bottom: 8px;
+}
+.hero-line span {
+  font-size: 15px;
+  line-height: 1.5;
+}
+.hero-line.reply {
+  margin: 12px 0 0 24px;
+  background: #ff702e10;
+  border-color: #9c5c3e;
+  border-radius: 13px 13px 3px 13px;
+}
+.hero-line.reply small {
+  color: #ff9b6b;
+}
+.hero-conversation > p {
+  font-size: 10px;
+  text-align: right;
+  margin-top: 13px;
+}
+.primary {
+  background: #ff702e;
+  color: #071925;
+  font-weight: 700;
+}
+.primary:hover {
+  background: #ff935f;
+}
+.secondary:hover,
+.icon-button:hover {
+  background: #193647;
+}
+.text-button {
+  color: #ff9b6b;
+}
+.scenario-card:hover {
+  border-color: #d5794c;
+  box-shadow: 0 8px 25px #0003;
+}
+.icon-tile,
+.icon-tile.heart,
+.icon-tile.calendar,
+.icon-tile.cross,
+.icon-tile.people,
+.icon-tile.coffee,
+.icon-tile.train,
+.icon-tile.file,
+.continue .icon-tile {
+  color: #ff9b6b;
+  background: #ff702e14;
+  border: 1px solid #ff702e28;
+}
+.round-arrow {
+  background: #1b3546;
+  color: #ff9b6b;
+}
+.chosen {
+  background: #ff702e13 !important;
+  border-color: #ff9360 !important;
+}
+.language-choice {
+  background: #ff702e0d;
+  border-color: #ff9360;
+}
+.selected-check {
+  color: #071925;
+}
+.marked {
+  color: #ff9b6b;
+}
+.marked svg {
+  fill: #ff702e25;
+}
+.tool-card {
+  color: #ff9b6b;
+}
+.tool-card h3 {
+  color: #f8f9fb;
+}
+.audio {
+  background: #1a3445;
+  color: #f8f9fb;
+}
+.reveal {
+  color: #ff9b6b;
+}
+.pill {
+  background: #ff702e12;
+  color: #ffb18b;
+  border: 1px solid #ff702e35;
+}
+.lesson-tabs button.active {
+  color: #ff9b6b;
+}
+.lesson-grid aside button.active {
+  color: #ffb18b;
+  background: #ff702e12;
+}
+.completion-icon {
+  color: #ff9b6b;
+  background: #ff702e18;
+}
+.voco {
+  background: #0c2232;
+}
+.voco a {
+  color: #ff9b6b;
+  border-color: #ff702e;
+}
+.onboarding {
+  padding-top: 45px;
+  padding-bottom: 55px;
+  align-items: center;
+}
+.onboarding-intro h1 {
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.08;
+  margin: 25px 0;
+}
+.onboarding-intro h1 > span {
+  font-family: "Omnes", "Manrope", sans-serif;
+  font-style: normal;
+  font-weight: 900;
+  color: #ff702e;
+}
+.onboarding-intro .intro-features {
+  max-width: 370px;
+  margin-top: 30px;
+}
+.onboarding-intro .intro-features > span {
+  color: #c7d1da;
+}
+.onboarding-intro .intro-features svg {
+  color: #ff9b6b;
+}
+.onboarding-panel {
+  background: #0d2333;
+  box-shadow: none;
+}
+.onboarding-panel h2 {
+  font-size: 30px;
+}
+.step-dots i.filled {
+  background: #ff702e;
+}
+.choice {
+  background: #102737;
+}
+.search input::placeholder {
+  color: #b8c6d2;
+}
+.muted {
+  color: #bac7d2 !important;
+}
+.save-note,
+.category,
+.time,
+.card-bottom,
+.phrase-position,
+.language-choice small,
+.bubble > small,
+.lesson-grid aside button,
+.lesson-tabs button,
+.gentle-note p {
+  color: #b8c6d2;
+}
+.eyebrow {
+  color: #ff9b6b;
+}
+.hero-note small,
+.floating-note small {
+  color: #b8c6d2;
+}
+footer {
+  background: #061520;
+}
+footer > div:first-child > span {
+  font-family: "Omnes", "Manrope", sans-serif;
+  color: #f8f9fb;
+  font-size: 18px;
+  font-weight: 700;
+}
+footer small {
+  font-family: "DM Sans", sans-serif;
+  color: #b8c6d2;
+  font-weight: 400;
+}
+@media (max-width: 900px) {
+  header .brand {
+    font-size: 25px;
+  }
+  .dashboard-hero {
+    padding: 30px;
+    gap: 25px;
+  }
+  .dashboard-hero h1 {
+    font-size: 34px;
+  }
+  .hero-conversation {
+    width: 220px;
+  }
+  .hero-line {
+    padding: 13px;
+  }
+  .hero-line span {
+    font-size: 12px;
+  }
+  .onboarding-intro h1 {
+    font-size: 48px;
+  }
+}
+@media (max-width: 620px) {
+  header .brand {
+    font-size: 27px;
+  }
+  .brand small {
+    font-size: 6px;
+    letter-spacing: 1.2px;
+    margin-top: 7px;
+  }
+  header nav {
+    background: #0b2030;
+  }
+  .dashboard-hero {
+    padding: 28px 23px;
+  }
+  .dashboard-hero h1,
+  .dashboard-hero h1 em {
+    font-size: 32px;
+    line-height: 1.14;
+  }
+  .hero-conversation {
+    display: none;
+  }
+  .onboarding {
+    padding: 5px 0 20px;
+  }
+  .onboarding-intro h1 {
+    font-size: 47px;
+  }
+  .onboarding-intro .intro-features {
+    margin-top: 22px;
+  }
+  .onboarding-panel h2 {
+    font-size: 28px;
+  }
+}

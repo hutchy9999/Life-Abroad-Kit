@@ -11,7 +11,6 @@ import {
   Headphones,
   Home,
   LayoutGrid,
-  Leaf,
   MessageCircle,
   Play,
   RotateCcw,
@@ -39,6 +38,7 @@ import { playAudio, stopAudio } from "./audio";
 import { track, vocoUrl } from "./analytics";
 import "./style.css";
 import "./accessibility.css";
+import "./brand.css";
 const icons: Record<string, typeof Home> = {
   home: Home,
   key: KeyRound,
@@ -401,9 +401,6 @@ function App() {
     <>
       <header>
         <a className="brand" href="#home" aria-label="Life Abroad Kit home">
-          <span className="brand-mark">
-            <Leaf size={23} />
-          </span>
           <span>
             Life Abroad Kit<small>BY JAMES HUTCHINSON LANGUAGES</small>
           </span>
@@ -478,18 +475,6 @@ function App() {
                 <span>
                   <Check size={16} /> Made for real life
                 </span>
-              </div>
-              <div className="illustration" aria-hidden="true">
-                <div className="arch">
-                  <div className="sun" />
-                  <div className="window" />
-                  <div className="door" />
-                </div>
-                <div className="floating-note">
-                  <MessageCircle size={18} /> Poco a poco.
-                  <small>A little at a time.</small>
-                </div>
-                <span className="plant">✳</span>
               </div>
             </div>
             <div className="onboarding-panel">
@@ -1018,16 +1003,17 @@ function App() {
                   🇪🇸 Spanish for life in Spain <span>·</span> A2–B1+
                 </span>
               </div>
-              <div className="hero-art" aria-hidden="true">
-                <div className="arch">
-                  <div className="sun" />
-                  <div className="window" />
-                  <div className="door" />
+              <div className="hero-conversation" aria-hidden="true">
+                <span className="eyebrow">REAL WORDS. REAL CONNECTIONS.</span>
+                <div className="hero-line">
+                  <small>YOU</small>
+                  <span>¿Te apetece tomar algo?</span>
                 </div>
-                <div className="hero-note">
-                  “¿Te apetece tomar algo?”
-                  <small>A conversation waiting to happen.</small>
+                <div className="hero-line reply">
+                  <small>THEM</small>
+                  <span>¡Claro! ¿Quedamos a las siete?</span>
                 </div>
+                <p>A conversation waiting to happen.</p>
               </div>
             </div>
             {state.last &&
@@ -1108,7 +1094,7 @@ function App() {
               </button>
             </div>
             <div className="gentle-note">
-              <Leaf size={20} />
+              <MessageCircle size={20} />
               <p>
                 You don’t need perfect Spanish. Just a few words to open the
                 next conversation.
@@ -1119,7 +1105,6 @@ function App() {
       </main>
       <footer>
         <div>
-          <Leaf size={17} />
           <span>
             Life Abroad Kit <small>by James Hutchinson Languages</small>
           </span>

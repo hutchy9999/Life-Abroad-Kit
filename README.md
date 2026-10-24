@@ -42,7 +42,9 @@ To add a language, extend the Scenario/State language types, put content in a se
 
 ## Branding
 
-Edit CSS variables at the beginning of `src/style.css` for colours and fonts. The provisional leaf mark is a Lucide icon; replace it when official brand assets are available. Typography uses locally bundled DM Sans and Manrope font packages with system fallbacks; no Google Fonts request is made by the app.
+The visual theme follows James Hutchinson Languages: navy backgrounds, white text and warm orange accents. `src/brand.css` contains brand-specific styling. Life Abroad Kit is a text title in Omnes, with no separate logo mark. The old decorative house artwork has been removed.
+
+Omnes SemiBold, Bold and Black are loaded from `public/fonts/Omnes-SemiBold.ttf`, `Omnes-Bold.ttf` and `Omnes-Black.ttf`. The local project includes copies from existing content assets. Those proprietary font binaries are ignored by Git and are not redistributed in the public repository. Supply appropriately licensed webfont assets at these paths when deploying from a fresh checkout, or connect the existing brand's licensed webfont service. Without those files, headings fall back to bundled Manrope. Body text uses bundled DM Sans. No Google Fonts request is made by the app.
 
 ## Progress and privacy
 
