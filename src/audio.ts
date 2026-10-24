@@ -1,47 +1,46 @@
-let active: SpeechSynthesisUtterance | null = null;
+import recordings from "./generated/audio.json";
+
+let active: HTMLAudioElement | null = null;
+const files: Record<string, string> = recordings;
+
 export function stopAudio() {
+  const previous = active;
   active = null;
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  if (previous) {
+    previous.onended = null;
+    previous.onerror = null;
+    previous.pause();
+    previous.removeAttribute("src");
+    previous.load();
+  }
 }
+
 export function playAudio(
   text: string,
-  slow: boolean,
+  _slow: boolean,
   onEnd: () => void,
   onError?: (message: string) => void,
 ): string | null {
-  if (!("speechSynthesis" in window))
-    return "Audio is not available in this browser. You can still read and practise every phrase.";
   stopAudio();
-  const voices = window.speechSynthesis.getVoices();
-  const voice =
-    voices.find((v) => v.lang.toLowerCase() === "es-es") ||
-    voices.find((v) => v.lang.toLowerCase().startsWith("es"));
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "es-ES";
-  // Some browsers populate their voice list only after the first request.
-  // With no listed Spanish voice, let the browser resolve the requested locale.
-  if (voice) utterance.voice = voice;
-  utterance.rate = slow ? 0.72 : 0.95;
-  utterance.onend = () => {
-    if (active !== utterance) return;
+  const path = files[text];
+  if (!path) return "Audio isn’t ready for this phrase yet. You can still read and practise it.";
+  const audio = new Audio(`${import.meta.env.BASE_URL}${path}`);
+  active = audio;
+  const finish = (failed = false) => {
+    if (active !== audio) return;
     active = null;
+    audio.onended = null;
+    audio.onerror = null;
     onEnd();
+    if (failed) onError?.("Audio couldn’t play. Check your connection and try again.");
   };
-  utterance.onerror = (event) => {
-    if (active !== utterance) return;
-    active = null;
-    onEnd();
-    if (event.error !== "canceled" && event.error !== "interrupted")
-      onError?.(
-        "Audio couldn’t play. Check that your device has a Spanish speech voice, then try again.",
-      );
-  };
-  active = utterance;
+  audio.onended = () => finish();
+  audio.onerror = () => finish(true);
   try {
-    window.speechSynthesis.speak(utterance);
+    void audio.play().catch(() => finish(true));
   } catch {
     active = null;
-    return "Audio couldn’t start. Please try again in a browser that supports text-to-speech.";
+    return "Audio couldn’t start. Please try again.";
   }
   return null;
 }

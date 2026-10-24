@@ -43,7 +43,7 @@ For a custom subdomain on Pages, use `/` as the base and follow GitHub's domain 
 - Output: `dist`
 - Backend/environment secrets: none
 - Runtime: static HTML, CSS and JS
-- Audio: browser/OS speech synthesis
+- Audio: static MP3 recordings in `public/audio/`, included in `dist/audio/`; no Azure keys needed for hosting
 - Progress: browser localStorage
 
 Set `APP_BASE_PATH` using the build environment or `.env.local`; build after changing it. The app uses fragment links to avoid host-specific SPA fallback requirements. Serve `index.html` at the chosen base directory, and return JS/CSS assets with their correct MIME types. A request outside the chosen base need not be rewritten to the app.

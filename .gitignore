@@ -6,3 +6,6 @@ dist/
 *.tsbuildinfo
 # Proprietary brand fonts stay local rather than being redistributed on GitHub.
 public/fonts/Omnes-*.ttf
+
+# Local voice auditions
+.audio-samples/

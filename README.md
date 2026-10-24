@@ -32,7 +32,7 @@ npm run preview
 - `src/main.tsx`: onboarding, dashboard, library, lessons, dialogues, recall, bookmarks and settings.
 - `src/content.ts`: typed Spanish content with stable scenario and phrase IDs.
 - `src/storage.ts`: versioned storage validation and safe recovery.
-- `src/audio.ts`: browser audio adapter; replace the implementation here to introduce recorded audio.
+- `src/audio.ts`: playback of static Elvira recordings, with cancellation and playback error handling.
 - `src/analytics.ts`: disabled-by-default event hook and Voco campaign URLs.
 - `src/style.css`: component layouts and reduced-motion support.
 - `src/brand.css`: navy/orange brand styling and Omnes typography.
@@ -63,7 +63,23 @@ Malformed or unknown-version storage is not overwritten: the app starts a tempor
 
 ## Audio
 
-The adapter selects an installed `es-ES` voice, then another Spanish voice. Listen speaks the Spanish text and toggles Stop while playing. All phrase cards and dialogue lines use a single Listen control. A new phrase cancels previous audio. When voices are still loading, the browser resolves the requested Spanish locale automatically. Playback failures show a clear message and retain all text features. Device voices may use operating-system speech services; pronunciation and offline availability depend on the device. Verify playback on actual Safari/iOS and Chrome/Android devices before release.
+All 96 phrases use saved Spain-Spanish Elvira recordings generated with Azure Speech (
+`es-ES-ElviraNeural`, natural speed, 48 kHz / 192 kbps MP3). Listen plays the same
+recording on every device. Recordings are AI-generated and still require a linguistic
+quality check before public launch. Playback does not call Azure or need an API key.
+The app fetches only the clip requested, and a new phrase stops previous audio.
+Missing clips or failed playback show a message rather than switching to an unpredictable
+device voice. An internet connection is needed for clips not already cached by the browser.
+
+To regenerate after editing Spanish text, use Node 22.18+ (Node 24 recommended), set
+`AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` in the private `.env.audio.local`, then run
+`npm run audio:generate`. Never prefix these variables with `VITE_` or commit the file.
+The generator stays below the F0 synthesis rate limit and reuses files with the same text,
+voice and format. Rerunning resumes interrupted work without regenerating completed clips.
+Commit `public/audio/` and `src/generated/audio.json` together. Production builds need
+neither Azure credentials nor synthesis access. Old clips can remain cached safely because
+changed text produces a different filename. To compare voices, run
+`node scripts/generate-voice-samples.mjs`; local samples are Git-ignored.
 
 ## Analytics
 

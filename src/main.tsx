@@ -685,8 +685,8 @@ function App() {
                   up online or synced.
                 </p>
                 <p>
-                  Audio uses your device’s Spanish speech voice. Voice
-                  availability varies by browser and device.
+                  Audio uses Elvira, a Spain-Spanish AI voice from Microsoft
+                  Azure. The recordings are saved with the app.
                 </p>
                 <p>
                   No analytics data is sent by this version. Spanish content is
