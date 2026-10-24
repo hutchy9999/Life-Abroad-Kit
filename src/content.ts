@@ -1,3 +1,4 @@
+import { conversationExpansions } from "./conversationExpansions.ts";
 export type Phrase = {
   speaker?: "you" | "native";
   id: string;
@@ -138,6 +139,19 @@ function expandRepairs(base: Scenario): Scenario {
     stages: ["Explain the problem", "Give more detail", "Arrange a visit", "Agree the next steps"],
     phrases: order.map((number, i) => ({ ...byId.get("repairs-p" + number)!, stage: Math.floor(i / 5) })),
   };
+}
+function expandConversation(base: Scenario): Scenario {
+  const expansion = conversationExpansions[base.id];
+  if (!expansion) return base;
+  const original = base.phrases.map((p) => ({ ...p, speaker: "you" as const }));
+  const added: Phrase[] = expansion.added.map(([es, en, speaker, pattern], i) => ({
+    id: base.id + "-p" + (i + 9), es, en, speaker, pattern,
+    prompt: speaker === "native" ? "Understand: “" + es + "”" : "Say: “" + en + "”", stage: 0,
+  }));
+  const byId = new Map([...original, ...added].map((p) => [p.id, p]));
+  return { ...base, phrases: expansion.order.map((number, i) => ({
+    ...byId.get(base.id + "-p" + number)!, stage: Math.floor(i / 5),
+  })) };
 }
 export const scenarios: Scenario[] = [
   scenario(
@@ -975,5 +989,5 @@ export const scenarios: Scenario[] = [
       ],
     ],
   ),
-];
+].map(expandConversation);
 export const categories = [...new Set(scenarios.map((s) => s.category))];

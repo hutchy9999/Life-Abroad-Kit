@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { fresh } from "./storage";
 import {
   activeSituation,
+  resumeExpandedSituations,
   situationPracticeProgress,
   pickQuickPhrase,
   recordQuickPhrase,
@@ -42,7 +43,7 @@ describe("immediate home practice", () => {
     };
     for (const n of [0, 0.2, 0.6, 0.99]) {
       const p = pickQuickPhrase(s, "flat-p2", () => n);
-      expect(["flat-p1", "flat-p3"]).toContain(p?.phrase.id);
+      expect(["flat-p1", "flat-p9"]).toContain(p?.phrase.id);
     }
   });
   it("gives difficult phrases a higher share of the review selection", () => {
@@ -52,7 +53,7 @@ describe("immediate home practice", () => {
       progress: { flat: { index: 1, completed: false } },
       recall: {
         "flat-p1": { again: 3, got: 0 },
-        "flat-p2": { again: 0, got: 3 },
+        "flat-p9": { again: 0, got: 3 },
       },
     };
     expect(pickQuickPhrase(s, undefined, () => 0.7)?.phrase.id).toBe("flat-p1");
@@ -111,9 +112,23 @@ describe("situation practice progress", () => {
     const card = pickQuickPhrase(initial)!;
     let s = recordQuickPhrase(initial, card, false);
     s = recordQuickPhrase(s, card, true);
-    expect(situationPracticeProgress(s, card.scenario)).toEqual({practised:1,total:8,percent:13});
+    expect(situationPracticeProgress(s, card.scenario)).toEqual({practised:1,total:20,percent:5});
     const other = { scenario: card.scenario, phrase: card.scenario.phrases[1] };
     s = recordQuickPhrase(s, other, true);
-    expect(situationPracticeProgress(s, card.scenario).percent).toBe(25);
+    expect(situationPracticeProgress(s, card.scenario).percent).toBe(10);
+  });
+});
+
+describe("progress after content expansion", () => {
+  it("makes new content available without discarding earlier progress or feedback", () => {
+    const s = { ...fresh(), selected: ["flat"], progress: { flat: {index:7,completed:true} }, recall: {"flat-p1":{again:2,got:1}} };
+    const updated = resumeExpandedSituations(s);
+    expect(updated.progress.flat).toEqual({index:7,completed:false});
+    expect(updated.recall).toBe(s.recall);
+    expect(s.progress.flat.completed).toBe(true);
+  });
+  it("preserves completion of a full twenty-phrase situation", () => {
+    const s = {...fresh(), progress: {flat:{index:19,completed:true}}};
+    expect(resumeExpandedSituations(s)).toBe(s);
   });
 });

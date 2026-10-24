@@ -30,6 +30,7 @@ import { playAudio, stopAudio } from "./audio";
 import { track, vocoUrl } from "./analytics";
 import {
   REVIEW_SESSION_SIZE,
+  resumeExpandedSituations,
   situationPracticeProgress,
   activeSituation,
   pickQuickPhrase,
@@ -57,7 +58,8 @@ function readRoute() {
   const path = location.hash.slice(1) || "home";
   return path === "phrases" || path === "review" ? "home" : path;
 }
-const initial = load();
+const loaded = load();
+const initial = { ...loaded, state: resumeExpandedSituations(loaded.state) };
 function App() {
   const [state, setState] = useState<State>(initial.state);
   const [storageError, setStorageError] = useState(initial.error);

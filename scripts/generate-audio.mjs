@@ -22,6 +22,20 @@ const manifest = {};
 const phrases = scenarios.flatMap(s => s.phrases);
 await mkdir(resolve(root, 'public/audio/es-ES'), { recursive: true });
 await mkdir(resolve(root, 'src/generated'), { recursive: true });
+const cachedPath = (phrase) => {
+  const hash = createHash('sha256').update(JSON.stringify([phrase.es, voice, format])).digest('hex').slice(0, 16);
+  return 'audio/es-ES/' + hash + '.mp3';
+};
+let newCharacters = 0;
+let newRequests = 0;
+for (const phrase of phrases) {
+  try { await access(resolve(root, 'public', cachedPath(phrase))); }
+  catch { newCharacters += phrase.es.length; newRequests++; }
+}
+const characterLimit = Number(process.env.AZURE_MAX_NEW_CHARACTERS || 10000);
+if (!Number.isFinite(characterLimit) || characterLimit < 0 || newCharacters > characterLimit)
+  throw new Error('New synthesis text exceeds the per-run character limit. No requests were sent.');
+console.log('Preflight: ' + newRequests + ' new clips, ' + newCharacters + ' text characters; per-run limit ' + characterLimit + '.');
 let requested = false;
 for (const [index, phrase] of phrases.entries()) {
   // Text, voice and format form the cache key, so edits cannot play stale speech.

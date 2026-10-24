@@ -1,3 +1,4 @@
+import originalPhraseText from "./fixtures/original-phrase-text.json";
 import { describe, it, expect } from "vitest";
 import { decode, fresh } from "./storage";
 import { scenarios } from "./content";
@@ -40,7 +41,7 @@ describe("Spanish launch content", () => {
     const ids = scenarios.flatMap((s) => [s.id, ...s.phrases.map((p) => p.id)]);
     expect(new Set(ids).size).toBe(ids.length);
     for (const s of scenarios) {
-      expect(s.phrases).toHaveLength(s.id === "repairs" ? 20 : 8);
+      expect(s.phrases).toHaveLength(20);
       expect(s.dialogue.length).toBeGreaterThanOrEqual(4);
       expect(s.stages).toHaveLength(4);
       expect(s.reviewStatus).toBe("draft");
@@ -72,5 +73,25 @@ describe("expanded repair situation", () => {
     original.forEach((es, i) => expect(repairs.phrases.find(p => p.id === "repairs-p" + (i + 1))?.es).toBe(es));
     expect(repairs.phrases.filter(p => p.speaker === "native")).toHaveLength(6);
     expect(repairs.phrases.filter(p => p.speaker === "you")).toHaveLength(14);
+  });
+});
+
+describe("expanded conversation coverage", () => {
+  it("gives every situation 20 distinct phrases with both sides of a conversation", () => {
+    expect(scenarios.flatMap(s => s.phrases)).toHaveLength(240);
+    for (const s of scenarios) {
+      expect(new Set(s.phrases.map(p => p.es)).size, s.id).toBe(20);
+      expect(s.phrases.filter(p => p.speaker === "you"), s.id).toHaveLength(14);
+      expect(s.phrases.filter(p => p.speaker === "native"), s.id).toHaveLength(6);
+      expect([...s.phrases.map(p => Number(p.id.split("-p")[1]))].sort((a,b) => a-b)).toEqual(Array.from({length:20}, (_,i) => i+1));
+    }
+  });
+});
+
+describe("saved phrase ID compatibility", () => {
+  it("retains the Spanish for all 96 original phrase IDs", () => {
+    const phrases = new Map(scenarios.flatMap(s => s.phrases).map(p => [p.id, p.es]));
+    expect(Object.keys(originalPhraseText)).toHaveLength(96);
+    for (const [id, text] of Object.entries(originalPhraseText)) expect(phrases.get(id), id).toBe(text);
   });
 });

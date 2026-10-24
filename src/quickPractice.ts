@@ -87,3 +87,18 @@ export function situationPracticeProgress(state: State, scenario: Scenario) {
   }).length;
   return { practised, total: scenario.phrases.length, percent: Math.round(practised / scenario.phrases.length * 100) };
 }
+
+// A completed eight-phrase situation has new material after an expansion.
+// Retain its position and feedback, but let the new phrases be practised.
+export function resumeExpandedSituations(state: State): State {
+  const progress = { ...state.progress };
+  let changed = false;
+  for (const scenario of scenarios) {
+    const previous = progress[scenario.id];
+    if (previous?.completed && previous.index < scenario.phrases.length - 1) {
+      progress[scenario.id] = { ...previous, completed: false };
+      changed = true;
+    }
+  }
+  return changed ? { ...state, progress } : state;
+}
