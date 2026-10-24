@@ -1396,3 +1396,28 @@ main {
   font-size: 0.9375rem;
 }
 .welcome-examples-label + .welcome-examples { margin-top: 8px; }
+
+.welcome-example-panel {
+  max-width: 520px;
+  margin: 16px auto 0;
+  padding: 12px 16px;
+  border: 1px solid #2c4252;
+  border-radius: 10px;
+  background: #0b202e;
+  text-align: left;
+}
+.welcome-example-panel > p {
+  color: #f8f9fb;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 6px;
+}
+.welcome-example-panel .welcome-examples {
+  width: auto;
+  margin: 0;
+  padding-left: 17px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.welcome-example-panel .welcome-examples li + li { margin-top: 4px; }
