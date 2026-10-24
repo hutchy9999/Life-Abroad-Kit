@@ -1263,3 +1263,44 @@ main {
     padding-bottom: calc(112px + env(safe-area-inset-bottom));
   }
 }
+
+/* Session progress measures reviews completed, independently of confidence. */
+.review-session-progress {
+  margin: 0 0 18px;
+}
+.review-session-progress .quick-count {
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+.review-session-progress progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #243b4b;
+  color: #ff702e;
+  accent-color: #ff702e;
+}
+.review-session-progress progress::-webkit-progress-bar {
+  background: #243b4b;
+  border-radius: 999px;
+}
+.review-session-progress progress::-webkit-progress-value {
+  background: #ff702e;
+  border-radius: 999px;
+}
+.review-session-progress progress::-moz-progress-bar {
+  background: #ff702e;
+  border-radius: 999px;
+}
+.quick-finished .button-row {
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+@media (forced-colors: active) {
+  .review-session-progress progress { appearance: auto; }
+}

@@ -31,6 +31,7 @@ import { load, KEY, fresh, type State } from "./storage";
 import { playAudio, stopAudio } from "./audio";
 import { track, vocoUrl } from "./analytics";
 import {
+  REVIEW_SESSION_SIZE,
   activeSituation,
   pickQuickPhrase,
   recordQuickPhrase,
@@ -78,6 +79,7 @@ function App() {
     pickQuickPhrase(initial.state),
   );
   const [homeCount, setHomeCount] = useState(0);
+  const [homePaused, setHomePaused] = useState(false);
   useEffect(() => {
     const f = () => {
       stopAudio();
@@ -179,6 +181,7 @@ function App() {
     if (route === "home") {
       setHomePhrase(pickQuickPhrase(state));
       setHomeCount(0);
+      setHomePaused(false);
       setRevealed(false);
     }
   }, [route, currentSituation?.id]);
@@ -190,7 +193,7 @@ function App() {
         )
         ?.focus();
     }
-  }, [homeCount]);
+  }, [homeCount, homePaused]);
   useEffect(() => {
     if (route === "review" && !reviewDone) {
       document.querySelector<HTMLElement>(".recall-prompt")?.focus();
@@ -373,14 +376,14 @@ function App() {
     );
   };
   function rateHomePhrase(known: boolean) {
-    if (!homePhrase) return;
+    if (!homePhrase || homeCount >= REVIEW_SESSION_SIZE) return;
     stopAudio();
     setAudio(null);
     setRevealed(false);
     const next = recordQuickPhrase(state, homePhrase, known);
     setState(next);
     track("phrase_reviewed");
-    setHomeCount((n) => n + 1);
+    setHomeCount((n) => Math.min(n + 1, REVIEW_SESSION_SIZE));
     setHomePhrase(pickQuickPhrase(next, homePhrase.phrase.id));
   }
   const recallCard = (p: Phrase) => (
@@ -978,11 +981,19 @@ function App() {
                     </span>
                     <h2 tabIndex={-1}>{homePhrase.scenario.title}</h2>
                   </div>
-                  <span className="quick-count">
-                    {Math.min(homeCount + 1, 3)} of 3
-                  </span>
+
                 </div>
-                {homeCount < 3 ? (
+                <div className="review-session-progress">
+                  <p id="session-progress-label" className="quick-count" aria-live="polite" aria-atomic="true">
+                    {homeCount} of {REVIEW_SESSION_SIZE} reviewed
+                  </p>
+                  <progress
+                    aria-labelledby="session-progress-label"
+                    value={homeCount}
+                    max={REVIEW_SESSION_SIZE}
+                  />
+                </div>
+                {homeCount < REVIEW_SESSION_SIZE ? (
                   <>
                     <div className="quick-phrase-card">
                       <div className="quick-phrase-line">
@@ -1044,12 +1055,14 @@ function App() {
                 ) : (
                   <div className="quick-finished">
                     <Check size={28} />
-                    <h2 tabIndex={-1}>Three phrases practised.</h2>
+                    <h2 tabIndex={-1}>{homePaused ? "All done for now" : "10 phrases reviewed"}</h2>
+                    {homePaused && <p>Your progress is saved. Come back whenever you’re ready.</p>}
                     <div className="button-row">
                       <button
                         className="primary"
                         onClick={() => {
                           setHomeCount(0);
+                          setHomePaused(false);
                           requestAnimationFrame(() =>
                             document
                               .querySelector<HTMLElement>(
@@ -1063,8 +1076,13 @@ function App() {
                           setRevealed(false);
                         }}
                       >
-                        Practise three more
+                        Practise ten more
                       </button>
+                      {!homePaused && (
+                        <button className="text-button" onClick={() => setHomePaused(true)}>
+                          Finish for now
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

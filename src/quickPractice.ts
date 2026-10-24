@@ -1,5 +1,6 @@
 import { scenarios, type Scenario, type Phrase } from "./content";
 import type { State } from "./storage";
+export const REVIEW_SESSION_SIZE = 10;
 export type QuickPhrase = { scenario: Scenario; phrase: Phrase };
 export function activeSituation(state: State): Scenario | undefined {
   const chosen = scenarios.filter((s) => state.selected.includes(s.id));

@@ -4,7 +4,7 @@ A free, browser-local Spanish conversation preparation app by James Hutchinson L
 
 ## App flow
 
-- My Learning opens directly on a compact phrase from the current situation. Three quick phrases offer “Don’t know this” / “I know this” feedback, with difficult phrases weighted more heavily in later review.
+- My Learning opens directly on a compact phrase from the current situation. Ten reviews per session offer “Don’t know this” / “I know this” feedback, with difficult phrases weighted more heavily in later review. An orange bar counts both answers equally as practice completed. After ten reviews, learners can practise ten more or finish for now; feedback and situation progress are saved after each answer.
 - All Situations is the library. Opening a situation shows every phrase in a scrollable list with independent translation reveals, a heart, Listen and a short usage note. There is no multi-step lesson navigation.
 - Saved phrases contains hearted phrases and one Listen control per item. Saved-phrase recall review is still available here.
 
