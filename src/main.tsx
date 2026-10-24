@@ -6,8 +6,6 @@ import {
   Check,
   Compass,
   Home,
-  MessageCircle,
-  RotateCcw,
   Settings,
   ShieldCheck,
   Volume2,
@@ -54,12 +52,16 @@ const icons: Record<string, typeof Home> = {
   train: TrainFront,
   file: FileText,
 };
+function readRoute() {
+  const path = location.hash.slice(1) || "home";
+  return path === "phrases" || path === "review" ? "home" : path;
+}
 const initial = load();
 function App() {
   const [state, setState] = useState<State>(initial.state);
   const [storageError, setStorageError] = useState(initial.error);
   const [blocked, setBlocked] = useState(initial.blocked);
-  const [route, setRoute] = useState(location.hash.slice(1) || "home");
+  const [route, setRoute] = useState(readRoute());
   const settingsReturnPath = useRef("home");
   const [step, setStep] = useState(0);
   const [selection, setSelection] = useState(state.selected);
@@ -72,19 +74,22 @@ function App() {
   const resetTrigger = useRef<HTMLElement | null>(null);
   const [audio, setAudio] = useState<string | null>(null);
   const [audioError, setAudioError] = useState<string | null>(null);
-  const [reviewIds, setReviewIds] = useState<string[]>([]);
-  const [reviewIndex, setReviewIndex] = useState(0);
-  const [reviewDone, setReviewDone] = useState(false);
   const [homePhrase, setHomePhrase] = useState<QuickPhrase | null>(() =>
     pickQuickPhrase(initial.state),
   );
   const [homeCount, setHomeCount] = useState(0);
   const [homePaused, setHomePaused] = useState(false);
   useEffect(() => {
+    const redirectOldRoute = () => {
+      if (["#phrases", "#review"].includes(location.hash))
+        history.replaceState(null, "", "#home");
+    };
+    redirectOldRoute();
     const f = () => {
+      redirectOldRoute();
       stopAudio();
       setAudio(null);
-      setRoute(location.hash.slice(1) || "home");
+      setRoute(readRoute());
       setVisibleTranslations([]);
       setRevealed(false);
       window.scrollTo(0, 0);
@@ -171,9 +176,6 @@ function App() {
       settingsReturnPath.current = route;
     location.hash = r;
   };
-  const all = scenarios.flatMap((s) =>
-    s.phrases.map((p) => ({ ...p, scenario: s })),
-  );
   const scenario = scenarios.find((s) => route === `scenario/${s.id}`);
   const selected = scenarios.filter((s) => state.selected.includes(s.id));
   const currentSituation = activeSituation(state);
@@ -194,11 +196,6 @@ function App() {
         ?.focus();
     }
   }, [homeCount, homePaused]);
-  useEffect(() => {
-    if (route === "review" && !reviewDone) {
-      document.querySelector<HTMLElement>(".recall-prompt")?.focus();
-    }
-  }, [reviewIndex, route, reviewDone]);
   const open = (s: Scenario) => {
     track("scenario_opened");
     update((v) => ({
@@ -211,15 +208,6 @@ function App() {
       },
     }));
     nav(`scenario/${s.id}`);
-  };
-  const bookmark = (id: string) => {
-    track("phrase_bookmarked");
-    update((v) => ({
-      ...v,
-      bookmarks: v.bookmarks.includes(id)
-        ? v.bookmarks.filter((x) => x !== id)
-        : [...v.bookmarks, id],
-    }));
   };
   function listen(p: Phrase | string, slow = false) {
     const text = typeof p === "string" ? p : p.es;
@@ -238,44 +226,6 @@ function App() {
     setAudioError(error);
     if (error) setAudio(null);
   }
-  function review(ids: string[]) {
-    const ordered = [...new Set(ids)]
-      .filter((id) => all.some((p) => p.id === id))
-      .sort(
-        (a, b) =>
-          (state.recall[b]?.again || 0) -
-          (state.recall[b]?.got || 0) -
-          ((state.recall[a]?.again || 0) - (state.recall[a]?.got || 0)),
-      );
-    setReviewIds(ordered);
-    setReviewIndex(0);
-    setReviewDone(false);
-    setRevealed(false);
-    nav("review");
-  }
-  function feedback(p: Phrase, again: boolean) {
-    stopAudio();
-    setAudio(null);
-    track("phrase_reviewed");
-    update((v) => {
-      const r = v.recall[p.id] || { again: 0, got: 0 };
-      return {
-        ...v,
-        recall: {
-          ...v.recall,
-          [p.id]: {
-            again: r.again + (again ? 1 : 0),
-            got: r.got + (again ? 0 : 1),
-          },
-        },
-      };
-    });
-    setRevealed(false);
-    if (route === "review") {
-      if (reviewIndex + 1 >= reviewIds.length) setReviewDone(true);
-      else setReviewIndex((i) => i + 1);
-    }
-  }
   const savedNotice = (
     <span className="save-note">
       <ShieldCheck size={14} />
@@ -284,7 +234,7 @@ function App() {
         : "Progress saved on this device"}
     </span>
   );
-  const voco = (placement: "library" | "completion" | "phrases") => (
+  const voco = (placement: "library" | "completion") => (
     <div className={`voco ${placement === "completion" ? "large" : ""}`}>
       <div>
         <span className="eyebrow">SPEAKING PRACTICE WITH VOCO</span>
@@ -386,44 +336,6 @@ function App() {
     setHomeCount((n) => Math.min(n + 1, REVIEW_SESSION_SIZE));
     setHomePhrase(pickQuickPhrase(next, homePhrase.phrase.id));
   }
-  const recallCard = (p: Phrase) => (
-    <div className="recall-card">
-      <span className="pill">
-        <MessageCircle size={14} /> Try saying this in Spanish
-      </span>
-      <h2 className="recall-prompt" tabIndex={-1}>
-        {p.prompt}
-      </h2>
-      <p>Say it aloud. You don’t need to record yourself.</p>
-      {revealed ? (
-        <>
-          <div className="answer" lang="es" role="status">
-            {p.es}
-          </div>
-          {audioButtons(p)}
-          <p className="muted">
-            This is one possible answer. Yours doesn’t have to match word for
-            word.
-          </p>
-          <p className="muted">
-            Phrases you don’t know will appear more often in review.
-          </p>
-          <div className="button-row">
-            <button className="secondary" onClick={() => feedback(p, true)}>
-              <RotateCcw size={17} /> Don’t know this
-            </button>
-            <button className="primary" onClick={() => feedback(p, false)}>
-              <Check size={18} /> I know this
-            </button>
-          </div>
-        </>
-      ) : (
-        <button className="primary" onClick={() => setRevealed(true)}>
-          Show answer <ArrowRight size={17} />
-        </button>
-      )}
-    </div>
-  );
   return (
     <>
       <a
@@ -447,7 +359,6 @@ function App() {
             {[
               ["home", "My learning", Home],
               ["library", "All situations", Compass],
-              ["phrases", "Saved phrases", Heart],
             ].map(([r, label, Icon]) => (
               <a
                 key={r as string}
@@ -682,7 +593,7 @@ function App() {
               <div>
                 <h3>Saved in your browser</h3>
                 <p>
-                  Preferences, bookmarks and progress stay on this device and
+                  Preferences and learning progress stay on this device and
                   browser. Clearing browser data, using private browsing or
                   switching devices may remove or hide them. They aren’t backed
                   up online or synced.
@@ -731,21 +642,6 @@ function App() {
                       <h2 id={"phrase-" + p.id} lang="es">
                         {p.es}
                       </h2>
-                      <button
-                        className={
-                          "icon-button " +
-                          (state.bookmarks.includes(p.id) ? "marked" : "")
-                        }
-                        aria-label={
-                          state.bookmarks.includes(p.id)
-                            ? "Saved. Remove saved phrase"
-                            : "Save phrase"
-                        }
-                        aria-pressed={state.bookmarks.includes(p.id)}
-                        onClick={() => bookmark(p.id)}
-                      >
-                        <Heart size={21} />
-                      </button>
                     </div>
                     {visibleTranslations.includes(p.id) && (
                       <p
@@ -811,98 +707,6 @@ function App() {
               )}
             </div>
             {state.progress[scenario.id]?.completed && voco("completion")}
-          </section>
-        ) : route === "phrases" ? (
-          <section>
-            <div className="page-heading">
-              <span className="eyebrow">SAVED FROM YOUR LESSONS</span>
-              <h1>
-                Saved phrases{" "}
-                <span className="count">{state.bookmarks.length}</span>
-              </h1>
-              <p>Phrases you’ve saved from your lessons.</p>
-            </div>
-            {state.bookmarks.length ? (
-              <>
-                <button
-                  className="primary"
-                  onClick={() => review(state.bookmarks)}
-                >
-                  Review my phrases <ArrowRight size={17} />
-                </button>
-                <div className="saved-grid">
-                  {all
-                    .filter((p) => state.bookmarks.includes(p.id))
-                    .map((p) => (
-                      <div className="saved-card" key={p.id}>
-                        <div className="phrase-top">
-                          <button
-                            className="text-button"
-                            onClick={() => open(p.scenario)}
-                          >
-                            {p.scenario.title}
-                          </button>
-                          <button
-                            className="icon-button marked"
-                            onClick={() => bookmark(p.id)}
-                            aria-label="Remove saved phrase"
-                          >
-                            <Heart size={19} />
-                          </button>
-                        </div>
-                        <h3 lang="es">{p.es}</h3>
-                        <p>{p.en}</p>
-                        {audioButtons(p)}
-                      </div>
-                    ))}
-                </div>
-                {voco("phrases")}
-              </>
-            ) : (
-              <div className="empty">
-                <Heart size={35} />
-                <h2>No saved phrases yet.</h2>
-                <p>Choose Save phrase in a lesson to add it here.</p>
-                <button className="primary" onClick={() => nav("library")}>
-                  Find a situation <ArrowRight size={17} />
-                </button>
-              </div>
-            )}
-          </section>
-        ) : route === "review" ? (
-          <section className="practice">
-            <button className="text-button back" onClick={() => nav("home")}>
-              <ArrowLeft size={16} /> Back to my learning
-            </button>
-            {!reviewDone && <h1>Quick review</h1>}
-            {reviewDone ? (
-              <div className="completion">
-                <Check size={35} />
-                <h1>Review complete</h1>
-                <p>Phrases you didn’t know come first in your next review.</p>
-                <button className="primary" onClick={() => review(reviewIds)}>
-                  Review again <RotateCcw size={17} />
-                </button>
-              </div>
-            ) : all.find((p) => p.id === reviewIds[reviewIndex]) ? (
-              <>
-                <div className="phrase-position">
-                  <span>Quick review</span>
-                  <span>
-                    {reviewIndex + 1} / {reviewIds.length}
-                  </span>
-                </div>
-                {recallCard(all.find((p) => p.id === reviewIds[reviewIndex])!)}
-              </>
-            ) : (
-              <div className="empty">
-                <h1>Nothing to review yet</h1>
-                <p>Save a phrase or practise a situation to get started.</p>
-                <button className="primary" onClick={() => nav("library")}>
-                  Explore situations
-                </button>
-              </div>
-            )}
           </section>
         ) : route === "library" ? (
           <section>
@@ -1000,25 +804,6 @@ function App() {
                         <h2 lang="es" tabIndex={-1}>
                           {homePhrase.phrase.es}
                         </h2>
-                        <button
-                          className={
-                            "icon-button " +
-                            (state.bookmarks.includes(homePhrase.phrase.id)
-                              ? "marked"
-                              : "")
-                          }
-                          aria-label={
-                            state.bookmarks.includes(homePhrase.phrase.id)
-                              ? "Saved. Remove saved phrase"
-                              : "Save phrase"
-                          }
-                          aria-pressed={state.bookmarks.includes(
-                            homePhrase.phrase.id,
-                          )}
-                          onClick={() => bookmark(homePhrase.phrase.id)}
-                        >
-                          <Heart size={21} />
-                        </button>
                       </div>
                       {revealed && (
                         <p className="translation" role="status">
@@ -1128,7 +913,7 @@ function App() {
           >
             <h2 id="reset-title">Start fresh on this device?</h2>
             <p id="reset-description">
-              This removes your bookmarks, preferences and learning progress
+              This removes your preferences and learning progress
               from this browser. This can’t be undone.
             </p>
             <div className="button-row">

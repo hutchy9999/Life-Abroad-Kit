@@ -5,8 +5,7 @@ A free, browser-local Spanish conversation preparation app by James Hutchinson L
 ## App flow
 
 - My Learning opens directly on a compact phrase from the current situation. Ten reviews per session offer “Don’t know this” / “I know this” feedback, with difficult phrases weighted more heavily in later review. An orange bar counts both answers equally as practice completed. After ten reviews, learners can practise ten more or finish for now; feedback and situation progress are saved after each answer.
-- All Situations is the library. Opening a situation shows every phrase in a scrollable list with independent translation reveals, a heart, Listen and a short usage note. There is no multi-step lesson navigation.
-- Saved phrases contains hearted phrases and one Listen control per item. Saved-phrase recall review is still available here.
+- All Situations is the library. Opening a situation shows every phrase in a scrollable list with independent translation reveals, Listen and a short usage note. There is no multi-step lesson navigation.
 
 ## Run locally
 
@@ -29,7 +28,7 @@ npm run preview
 
 ## Structure
 
-- `src/main.tsx`: onboarding, dashboard, library, lessons, dialogues, recall, bookmarks and settings.
+- `src/main.tsx`: onboarding, My learning, situation library and settings.
 - `src/content.ts`: typed Spanish content with stable scenario and phrase IDs.
 - `src/storage.ts`: versioned storage validation and safe recovery.
 - `src/audio.ts`: playback of static Elvira recordings, with cancellation and playback error handling.
@@ -96,3 +95,5 @@ No analytics provider is configured and no analytics requests are sent. `track` 
 - Keep Voco a separate, optional service and use its standard home-page links.
 
 No live deployment or DNS change is performed by local development commands.
+
+Legacy saved-phrase IDs remain in the version 1 storage format for compatibility with existing browser data. Saving controls and the Saved phrases page have been removed. Old saved-phrase and review links return to My learning.

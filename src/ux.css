@@ -498,7 +498,7 @@ footer {
     border-top: 1px solid #879eaf;
     z-index: 5;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px;
   }
   nav a {
@@ -1303,4 +1303,9 @@ main {
 }
 @media (forced-colors: active) {
   .review-session-progress progress { appearance: auto; }
+}
+
+.quick-phrase-line,
+.browse-phrase-title {
+  display: block;
 }
