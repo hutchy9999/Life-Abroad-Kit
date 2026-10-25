@@ -1,9 +1,10 @@
+import type { Language } from "./languages.ts";
 export const KEY = "life-abroad-kit:v1";
 export type Progress = { index: number; completed: boolean };
 export type State = {
   version: 1;
   onboarded: boolean;
-  language: "es-ES";
+  language: Language;
   situation: string;
   selected: string[];
   bookmarks: string[];
@@ -11,10 +12,10 @@ export type State = {
   recall: Record<string, { again: number; got: number; lastKnown?: boolean }>;
   last: string | null;
 };
-export const fresh = (): State => ({
+export const fresh = (language: Language = "es-ES"): State => ({
   version: 1,
   onboarded: false,
-  language: "es-ES",
+  language,
   situation: "moving",
   selected: [],
   bookmarks: [],
@@ -33,7 +34,7 @@ export function decode(raw: string | null): State {
     !record(v) ||
     v.version !== 1 ||
     typeof v.onboarded !== "boolean" ||
-    v.language !== "es-ES" ||
+    (v.language !== "es-ES" && v.language !== "it-IT") ||
     typeof v.situation !== "string" ||
     !strings(v.selected) ||
     !strings(v.bookmarks) ||

@@ -1,6 +1,6 @@
 # Life Abroad Kit
 
-A free, browser-local Spanish conversation preparation app by James Hutchinson Languages. React + TypeScript + Vite. No backend, accounts, AI API, email collection or cloud progress storage.
+A free, browser-local Spanish and Italian conversation preparation app by James Hutchinson Languages. React + TypeScript + Vite. No backend, accounts, AI API, email collection or cloud progress storage.
 
 ## App flow
 
@@ -29,7 +29,9 @@ npm run preview
 ## Structure
 
 - `src/main.tsx`: onboarding, My learning, situation library and settings.
-- `src/content.ts`: typed Spanish content with stable scenario and phrase IDs.
+- `src/content.ts`: Spanish content with stable scenario and phrase IDs.
+- `src/italianContent.ts` and `src/italianPhrases.ts`: adapted Italian content, using separate it- IDs.
+- `src/catalog.ts` and `src/languages.ts`: language-specific content and voice configuration.
 - `src/storage.ts`: versioned storage validation and safe recovery.
 - `src/audio.ts`: playback of static Elvira recordings, with cancellation and playback error handling.
 - `src/analytics.ts`: disabled-by-default event hook and Voco campaign URLs.
@@ -42,11 +44,11 @@ npm run preview
 
 ## Content
 
-All 12 initial scenarios / 240 phrases are **drafts requiring linguistic review before public launch**. Review naturalness, translations, register, regional usage and whether dialogues prepare both participants. This is language practice; health and administration scenarios do not provide medical or legal advice.
+The 12 situations in each language / 480 phrases in total are **drafts requiring linguistic review before public launch**. Review naturalness, translations, register, regional usage and whether dialogues prepare both participants. This is language practice; health and administration scenarios do not provide medical or legal advice.
 
 To add a scenario, add a `scenario(...)` entry in `src/content.ts`, giving it a unique permanent ID, one category, four stages, eight or more phrase rows and a two-way dialogue. Existing IDs must remain stable after wording changes; changing IDs disconnects saved progress. Phrase counts and stage grouping adapt to the content. Do not reuse a retired ID for different content.
 
-To add a language, extend the Scenario/State language types, put content in a separate language module, filter all library/review data by language, add a supported-language selector, and select the matching audio locale. Namespace progress by language or use globally unique IDs. Add a storage migration rather than discarding v1 data. Do not show unavailable languages as selectable.
+Language is chosen during setup and stays fixed during normal use. There is no language selector in Settings. Spanish profiles continue using the original v1 IDs and storage; Italian uses it- IDs so feedback and progress cannot collide. The setup choice can be revisited only after explicitly resetting progress. New languages need their own adapted content, language/voice configuration, catalog entry, setup choice and audio manifest.
 
 ## Branding
 
@@ -62,20 +64,19 @@ Malformed or unknown-version storage is not overwritten: the app starts a tempor
 
 ## Audio
 
-All 240 phrases use saved Spain-Spanish Elvira recordings generated with Azure Speech (
-`es-ES-ElviraNeural`, natural speed, 48 kHz / 192 kbps MP3). Listen plays the same
+Spanish uses 240 saved Elvira recordings (`es-ES-ElviraNeural`); Italian uses 240 saved Diego recordings (`it-IT-DiegoNeural`). Both use natural speed, 48 kHz / 192 kbps MP3 from Azure Speech. Listen plays the same
 recording on every device. Recordings are AI-generated and still require a linguistic
 quality check before public launch. Playback does not call Azure or need an API key.
 The app fetches only the clip requested, and a new phrase stops previous audio.
 Missing clips or failed playback show a message rather than switching to an unpredictable
 device voice. An internet connection is needed for clips not already cached by the browser.
 
-To regenerate after editing Spanish text, use Node 22.18+ (Node 24 recommended), set
+To regenerate after editing target-language text, use Node 22.18+ (Node 24 recommended), set
 `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` in the private `.env.audio.local`, then run
-`npm run audio:generate`. Never prefix these variables with `VITE_` or commit the file.
+`npm run audio:generate` for Spanish or `npm run audio:generate -- --language=it-IT` for Italian. Never prefix these variables with `VITE_` or commit the file.
 The generator stays below the F0 synthesis rate limit and reuses files with the same text,
 voice and format. Rerunning resumes interrupted work without regenerating completed clips.
-Commit `public/audio/` and `src/generated/audio.json` together. Production builds need
+Commit `public/audio/` and the corresponding `src/generated/audio.json` (Spanish) or `src/generated/audio-it.json` (Italian) together. Production builds need
 neither Azure credentials nor synthesis access. Old clips can remain cached safely because
 changed text produces a different filename. To compare voices, run
 `node scripts/generate-voice-samples.mjs`; local samples are Git-ignored.
@@ -109,3 +110,5 @@ Getting something fixed is the first expanded content pilot: 20 phrases, includi
 Conversation additions for the other eleven situations live in src/conversationExpansions.ts. Each situation retains its original p1 through p8 text and IDs, with p9 through p20 added around them in a conversational order. Audio generation preflights uncached text against a 10,000-character per-run cap; this cap does not measure other usage on the Azure account.
 
 After expansion, an older completed eight-phrase situation becomes available for continued practice. Its saved position and all phrase feedback remain intact. Completion of the full twenty-phrase version is retained.
+
+Italian content adapts local terms such as tessera sanitaria, ricetta, scontrino and deposito cauzionale. Healthcare and administration examples use the polite Lei form where appropriate. Both languages remain drafts for native-speaker linguistic review before public launch. The legacy Phrase.es field stores target-language text in both catalogs; rendered lang attributes and audio manifests use the chosen BCP 47 locale.

@@ -1,3 +1,5 @@
+import italianRecordings from "./generated/audio-it.json";
+import { italianScenarios } from "./italianContent.ts";
 import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 import { playAudio, stopAudio } from "./audio";
 import recordings from "./generated/audio.json";
@@ -71,5 +73,20 @@ describe("recorded Spanish audio", () => {
   it("does not switch to an unpredictable device voice when a recording is missing", () => {
     expect(playAudio("Unknown phrase", false, vi.fn())).toContain("isn’t ready");
     expect(instances).toHaveLength(0);
+  });
+});
+
+describe("Italian audio isolation", () => {
+  it("has a Diego recording for every Italian phrase", () => {
+    const files:Record<string,string>=italianRecordings;
+    for (const phrase of italianScenarios.flatMap(s => s.phrases)) {
+      expect(files[phrase.es],phrase.id).toMatch(/^audio\/it-IT\/[a-f0-9]+\.mp3$/);
+    }
+  });
+  it("plays Italian from its own manifest, and never uses Spanish as a fallback", () => {
+    const firstItalian=italianScenarios[0].phrases[0].es;
+    expect(playAudio(firstItalian,false,vi.fn(),undefined,"it-IT")).toBeNull();
+    expect(instances[0].src).toContain("/audio/it-IT/");
+    expect(playAudio(first,false,vi.fn(),undefined,"it-IT")).toContain("isn’t ready");
   });
 });

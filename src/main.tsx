@@ -24,7 +24,9 @@ import {
   FileText,
   Plus,
 } from "lucide-react";
-import { scenarios, categories, type Scenario, type Phrase } from "./content";
+import type { Scenario, Phrase } from "./content";
+import { scenariosFor } from "./catalog.ts";
+import { languages, type Language } from "./languages.ts";
 import { load, KEY, fresh, type State } from "./storage";
 import { playAudio, stopAudio } from "./audio";
 import { track, vocoUrl } from "./analytics";
@@ -62,6 +64,9 @@ const loaded = load();
 const initial = { ...loaded, state: resumeExpandedSituations(loaded.state) };
 function App() {
   const [state, setState] = useState<State>(initial.state);
+  const languageInfo = languages[state.language];
+  const scenarios = scenariosFor(state.language);
+  const categories = [...new Set(scenarios.map(s => s.category))];
   const [storageError, setStorageError] = useState(initial.error);
   const [blocked, setBlocked] = useState(initial.blocked);
   const [route, setRoute] = useState(readRoute());
@@ -233,6 +238,7 @@ function App() {
       slow,
       () => setAudio(null),
       (message) => setAudioError(message),
+      state.language,
     );
     setAudioError(error);
     if (error) setAudio(null);
@@ -260,7 +266,7 @@ function App() {
         </p>
       </div>
       <a
-        href={vocoUrl(placement)}
+        href={vocoUrl(placement, state.language)}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => track("voco_clicked", placement)}
@@ -279,7 +285,7 @@ function App() {
         aria-label={
           audio === (typeof p === "string" ? p : p.es)
             ? "Stop audio"
-            : "Listen to Spanish audio"
+            : "Listen to " + languageInfo.name + " audio"
         }
       >
         {audio === (typeof p === "string" ? p : p.es) ? (
@@ -360,7 +366,7 @@ function App() {
                     return (
                       <li key={p.id} className={r.got > 0 ? "reviewed-known" : ""}>
                         <div className="reviewed-phrase-detail">
-                          <p lang="es">{p.es}</p>
+                          <p lang={state.language}>{p.es}</p>
                           <div className="reviewed-phrase-stats">
                             <span>Practised {r.again + r.got} {r.again + r.got === 1 ? "time" : "times"}</span>
                             {r.got > 0 && <span className="sr-only">Marked as known at least once</span>}
@@ -461,20 +467,21 @@ function App() {
               {step === 0 ? (
                 <>
                   <h2>Get started</h2>
-                  <div className="language-choice">
-                    <svg className="language-flag" viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" focusable="false">
-                      <rect width="30" height="20" rx="2" fill="#c60b1e" />
-                      <path d="M0 5h30v10H0z" fill="#ffc400" />
-                    </svg>
-                    <span>
-                      <strong>Spanish</strong>
-                      <small>Everyday Spanish for life in Spain</small>
-                    </span>
-                    <span className="selected-check">
-                      <Check size={15} />
-                    </span>
+                  <div className="language-choices" role="group" aria-label="Choose your language">
+                    {(["es-ES", "it-IT"] as Language[]).map((language) => (
+                      <button key={language} className={"language-choice" + (state.language === language ? " chosen" : "")} aria-pressed={state.language === language} onClick={() => {
+                        if (state.onboarded || state.language === language) return;
+                        setState(v => ({ ...v, language, selected: [], last: null }));
+                        setSelection([]);
+                      }}>
+                        <svg className="language-flag" viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" focusable="false">
+                          {language === "es-ES" ? <><rect width="30" height="20" rx="2" fill="#c60b1e" /><path d="M0 5h30v10H0z" fill="#ffc400" /></> : <><rect width="30" height="20" rx="2" fill="#fff" /><path d="M0 0h10v20H0z" fill="#009246" /><path d="M20 0h10v20H20z" fill="#ce2b37" /></>}
+                        </svg>
+                        <span><strong>{languages[language].name}</strong><small>For life in {languages[language].country}</small></span>
+                        {state.language === language && <span className="selected-check"><Check size={15} /></span>}
+                      </button>
+                    ))}
                   </div>
-
                   <button
                     className="primary wide"
                     onClick={() => {
@@ -581,7 +588,7 @@ function App() {
             </button>
             <span className="eyebrow">SETTINGS</span>
             <h1>Your preferences</h1>
-            <p>Spanish · For life in Spain</p>
+            <p>{languageInfo.name} · For life in {languageInfo.country}</p>
             <label>
               Your situation
               <select
@@ -627,11 +634,11 @@ function App() {
                   up online or synced.
                 </p>
                 <p>
-                  Audio uses Elvira, a Spain-Spanish AI voice from Microsoft
+                  Audio uses {languageInfo.voiceName}, an AI voice for {languageInfo.name} from Microsoft
                   Azure. The recordings are saved with the app.
                 </p>
                 <p>
-                  No analytics data is sent by this version. Spanish content is
+                  No analytics data is sent by this version. {languageInfo.name} content is
                   a draft awaiting linguistic review.
                 </p>
               </div>
@@ -668,7 +675,7 @@ function App() {
               <h1>{scenario.title}</h1>
               <p>{scenario.description}</p>
             </div>
-            <ul className="browse-phrases" aria-label="Spanish phrases">
+            <ul className="browse-phrases" aria-label={languageInfo.name + " phrases"}>
               {scenario.phrases.map((p) => (
                 <li key={p.id}>
                   <article
@@ -677,7 +684,7 @@ function App() {
                   >
                     <div className="browse-phrase-title">
                       {p.speaker && <span className="phrase-speaker">{p.speaker === "native" ? "You might hear" : "You can say"}</span>}
-                      <h2 id={"phrase-" + p.id} lang="es">
+                      <h2 id={"phrase-" + p.id} lang={state.language}>
                         {p.es}
                       </h2>
                     </div>
@@ -749,7 +756,7 @@ function App() {
         ) : route === "library" ? (
           <section>
             <div className="page-heading">
-              <span className="eyebrow">SPANISH FOR LIFE IN SPAIN</span>
+              <span className="eyebrow">{languageInfo.name.toUpperCase()} FOR LIFE IN {languageInfo.country.toUpperCase()}</span>
               <h1>All situations</h1>
               <p>Choose a conversation you’d like to feel more confident in.</p>
             </div>
@@ -840,7 +847,7 @@ function App() {
                     <div className="quick-phrase-card">
                       <div className="quick-phrase-line">
                         {homePhrase.phrase.speaker && <span className="phrase-speaker">{homePhrase.phrase.speaker === "native" ? "You might hear" : "You can say"}</span>}
-                        <h2 lang="es" tabIndex={-1}>
+                        <h2 lang={state.language} tabIndex={-1}>
                           {homePhrase.phrase.es}
                         </h2>
                       </div>
@@ -982,7 +989,7 @@ function App() {
                     localStorage.removeItem(KEY);
                     setBlocked(false);
                     setStorageError(null);
-                    setState(fresh());
+                    setState(fresh(state.language));
                     setSelection([]);
                     setStep(0);
                     setReset(false);

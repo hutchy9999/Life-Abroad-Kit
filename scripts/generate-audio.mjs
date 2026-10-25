@@ -2,7 +2,8 @@ import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { scenarios } from '../src/content.ts';
+import { scenariosFor } from '../src/catalog.ts';
+import { languages } from '../src/languages.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const config = await readFile(resolve(root, '.env.audio.local'), 'utf8');
@@ -15,16 +16,20 @@ const values = Object.fromEntries(config.replace(/^\uFEFF/, '').split(/\r?\n/)
 const key = values.AZURE_SPEECH_KEY;
 const region = values.AZURE_SPEECH_REGION;
 if (!key || !/^[a-z]+\d*$/.test(region || '')) throw new Error('Configure the private .env.audio.local file first.');
-const voice = 'es-ES-ElviraNeural';
+const language = process.argv.find(arg => arg.startsWith('--language='))?.split('=')[1] || 'es-ES';
+if (!(language in languages)) throw new Error('Unsupported synthesis language.');
+const scenarios = scenariosFor(language);
+const voice = languages[language].voice;
+const manifestFile = language === 'it-IT' ? 'audio-it.json' : 'audio.json';
 const format = 'audio-48khz-192kbitrate-mono-mp3';
 const xml = text => text.replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
 const manifest = {};
 const phrases = scenarios.flatMap(s => s.phrases);
-await mkdir(resolve(root, 'public/audio/es-ES'), { recursive: true });
+await mkdir(resolve(root, 'public/audio', language), { recursive: true });
 await mkdir(resolve(root, 'src/generated'), { recursive: true });
 const cachedPath = (phrase) => {
   const hash = createHash('sha256').update(JSON.stringify([phrase.es, voice, format])).digest('hex').slice(0, 16);
-  return 'audio/es-ES/' + hash + '.mp3';
+  return 'audio/' + language + '/' + hash + '.mp3';
 };
 let newCharacters = 0;
 let newRequests = 0;
@@ -40,7 +45,7 @@ let requested = false;
 for (const [index, phrase] of phrases.entries()) {
   // Text, voice and format form the cache key, so edits cannot play stale speech.
   const hash = createHash('sha256').update(JSON.stringify([phrase.es, voice, format])).digest('hex').slice(0, 16);
-  const path = `audio/es-ES/${hash}.mp3`;
+  const path = `audio/${language}/${hash}.mp3`;
   const target = resolve(root, 'public', path);
   let exists = false;
   try { await access(target); exists = true; } catch {}
@@ -58,7 +63,7 @@ for (const [index, phrase] of phrases.entries()) {
           'X-Microsoft-OutputFormat': format,
           'User-Agent': 'LifeAbroadKitLocalAudioGenerator',
         },
-        body: `<speak version="1.0" xml:lang="es-ES"><voice name="${voice}">${xml(phrase.es)}</voice></speak>`,
+        body: `<speak version="1.0" xml:lang="${language}"><voice name="${voice}">${xml(phrase.es)}</voice></speak>`,
         signal: AbortSignal.timeout(60000),
       });
     } catch { throw new Error('Azure connection failed. Rerun to resume cached progress.'); }
@@ -70,5 +75,5 @@ for (const [index, phrase] of phrases.entries()) {
   manifest[phrase.es] = path;
   console.log(`${index + 1}/${phrases.length} ${phrase.id}${exists ? ' (cached)' : ''}`);
 }
-await writeFile(resolve(root, 'src/generated/audio.json'), JSON.stringify(manifest, null, 2) + '\n');
+await writeFile(resolve(root, 'src/generated', manifestFile), JSON.stringify(manifest, null, 2) + '\n');
 console.log(`Ready: ${phrases.length} phrases in ${voice}. Credentials stay local.`);

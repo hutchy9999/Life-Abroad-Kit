@@ -10,7 +10,7 @@ export type Phrase = {
 };
 export type Scenario = {
   id: string;
-  language: "es-ES";
+  language: "es-ES" | "it-IT";
   category: string;
   title: string;
   description: string;

@@ -1,9 +1,10 @@
-import { scenarios, type Scenario, type Phrase } from "./content";
+import type { Scenario, Phrase } from "./content";
+import { scenariosFor } from "./catalog.ts";
 import type { State } from "./storage";
 export const REVIEW_SESSION_SIZE = 10;
 export type QuickPhrase = { scenario: Scenario; phrase: Phrase };
 export function activeSituation(state: State): Scenario | undefined {
-  const chosen = scenarios.filter((s) => state.selected.includes(s.id));
+  const chosen = scenariosFor(state.language).filter((s) => state.selected.includes(s.id));
   const last = chosen.find((s) => s.id === state.last);
   if (last && !state.progress[last.id]?.completed) return last;
   return (
@@ -50,6 +51,7 @@ export function recordQuickPhrase(
   card: QuickPhrase,
   known: boolean,
 ): State {
+  if (card.scenario.language !== state.language) return state;
   const id = card.scenario.id;
   const previous = state.progress[id];
   const recall = state.recall[card.phrase.id] || { again: 0, got: 0 };
@@ -93,7 +95,7 @@ export function situationPracticeProgress(state: State, scenario: Scenario) {
 export function resumeExpandedSituations(state: State): State {
   const progress = { ...state.progress };
   let changed = false;
-  for (const scenario of scenarios) {
+  for (const scenario of scenariosFor(state.language)) {
     const previous = progress[scenario.id];
     if (previous?.completed && previous.index < scenario.phrases.length - 1) {
       progress[scenario.id] = { ...previous, completed: false };

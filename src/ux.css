@@ -1165,9 +1165,9 @@ header .brand {
   line-height: 1.3;
 }
 
-.quick-phrase-line h2[lang="es"],
-.phrase-card h2[lang="es"],
-.saved-card h3[lang="es"] {
+.quick-phrase-line h2[lang],
+.phrase-card h2[lang],
+.saved-card h3[lang] {
   font-family: "DM Sans", sans-serif;
   font-weight: 400;
   letter-spacing: 0;
@@ -1478,3 +1478,8 @@ main {
 .all-practised-page .reviewed-situation { margin-bottom: 16px; }
 
 .phrase-speaker { display: block; margin-bottom: 4px; font-family: "DM Sans", sans-serif; font-size: 0.8125rem; font-weight: 500; line-height: 1.4; color: #b8c6d2; }
+
+.language-choices { display: grid; gap: 8px; margin: 16px 0; }
+.language-choices .language-choice { margin: 0; padding: 12px 14px; border-color: #486071; min-height: 72px; }
+.language-choices .language-choice.chosen { border-color: #ff9b6b; background: #192b35; }
+.language-choices .selected-check { color: #071925; }

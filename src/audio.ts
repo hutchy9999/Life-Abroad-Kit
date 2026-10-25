@@ -1,7 +1,9 @@
 import recordings from "./generated/audio.json";
+import italianRecordings from "./generated/audio-it.json";
+import type { Language } from "./languages.ts";
 
 let active: HTMLAudioElement | null = null;
-const files: Record<string, string> = recordings;
+const recordingsByLanguage: Record<Language, Record<string, string>> = { "es-ES": recordings, "it-IT": italianRecordings };
 
 export function stopAudio() {
   const previous = active;
@@ -20,9 +22,10 @@ export function playAudio(
   _slow: boolean,
   onEnd: () => void,
   onError?: (message: string) => void,
+  language: Language = "es-ES",
 ): string | null {
   stopAudio();
-  const path = files[text];
+  const path = recordingsByLanguage[language][text];
   if (!path) return "Audio isn’t ready for this phrase yet. You can still read and practise it.";
   const audio = new Audio(`${import.meta.env.BASE_URL}${path}`);
   active = audio;
